@@ -1,0 +1,13 @@
+O Processo com o Gemini é realizado por meio de uma biblioteca chamada:
+`twilio/sdk`
+
+Para utilizar, primeiro inicializamos o Client da Twillio `Twilio\Rest\Client` passando no parametro o `id` e o `token`  uinico do sistema da Twillio
+Acesso: `https://www.twillio.com` com email `math.greg**@gma**`
+
+Após isso utilizamos o atributo `message` e nesse atributo utilizamos o método `create` com os parametros:
+- String com o numero de envio da mensagem
+- Array com dois parametros:
+  - from (Numero de quem está enviando)
+  - Body (Mensagem a ser enviada)
+
+  Após isso o método retornará a sua mensagem de callback

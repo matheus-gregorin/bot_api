@@ -1,0 +1,16 @@
+services:
+  seu_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "9001:9001"
+    #network_mode: "host"
+    volumes:
+      - .:/var/www/html
+      - app_data:/var/www/html/public/uploads
+    container_name: projeto_bot
+
+volumes:
+  app_data:

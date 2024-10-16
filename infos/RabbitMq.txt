@@ -1,0 +1,37 @@
+O Processo com o RabbitMq é realizado por meio de uma biblioteca chamada:
+`pablicio/mirabel-rabbitmq`
+
+Necessário inserir as variaveis de ambientepara conexão:
+MB_RABBITMQ_HOS="192.168.1.8"
+MB_RABBITMQ_PORT=5672
+MB_RABBITMQ_USER="guest"
+MB_RABBITMQ_PASSWORD="guest"
+MB_RABBITMQ_EXCHANGE="my-exchange"
+MB_RABBITMQ_EXCHANGE_TYPE="topic"
+MB_RABBITMQ_EXCHANGE_PASSIVE=false
+MB_RABBITMQ_EXCHANGE_DURABLE=true
+MB_RABBITMQ_EXCHANGE_DELETE=false
+MB_RABBITMQ_EXCHANGE_NOWAIT=false 
+MB_RABBITMQ_EXCHANGE_ARGUMENTS=[]
+MB_RABBITMQ_EXCHANGE_TICKET=null
+
+É necessário configurar a o arquivo `mirabel_rabbitmq.php`, rodar o comando abaixo no terminal para realizar o processo automaticamente:
+`php artisan vendor:publish --provider="Pablicio\MirabelRabbitmq\MirabelRabbitmqServiceProvider"`
+
+Para iniciar o processo com o rabbitMQ
+
+rodar um docker com a imagem da aplicação rabbit
+
+`docker run --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:management`
+
+Ao executar o `docker compose up` vemos na linha 44 a execução do init-listener-rabbit.sh
+ele vai ajustar as configurações necessárias para o supervisord.
+
+Obs* Verifica se a porta 9002 (utilizada pelo Supervisord) e a porta 5672 (utilizada pelo RabbitMq) estão ocupadas, para poder limpar.
+
+1° - Ele verifica se a configuração (laravel-rabbitmq-worker.conf) que vai iniciar o listener do rabbit (StoreOrderReceivedWorker) está instanciado
+se não estiver ele vai criar com as configurações corretas.
+
+2° - Inicia e atualiza o Supervisord a partir da linha 40
+
+3° Foi criado um Publisher e um Listener para uma fila do RabbitMQ
