@@ -40,3 +40,11 @@ Deu errotest
 [2024-10-16 14:34:35] production.CRITICAL: Erro ao consumir o Rabbit {"msg":"stream_socket_client(): Unable to connect to tcp://192.168.1.13:5672 (Connection refused)"} 
 [2024-10-16 14:34:37] production.INFO: Iniciando a leitura  
 [2024-10-16 14:34:37] production.CRITICAL: Erro ao consumir o Rabbit {"msg":"stream_socket_client(): Unable to connect to tcp://192.168.1.13:5672 (Connection refused)"} 
+[2024-10-16 14:43:50] local.INFO: Iniciando a leitura  
+[2024-10-16 14:43:50] local.CRITICAL: Erro ao consumir o Rabbit {"msg":"stream_socket_client(): Unable to connect to tcp://192.168.1.13:5672 (Connection refused)"} 
+[2024-10-16 14:43:51] local.INFO: Iniciando a leitura  
+[2024-10-16 14:43:51] local.CRITICAL: Erro ao consumir o Rabbit {"msg":"stream_socket_client(): Unable to connect to tcp://192.168.1.13:5672 (Connection refused)"} 
+[2024-10-16 14:43:53] local.INFO: Iniciando a leitura  
+[2024-10-16 14:43:53] local.CRITICAL: Erro ao consumir o Rabbit {"msg":"stream_socket_client(): Unable to connect to tcp://192.168.1.13:5672 (Connection refused)"} 
+[2024-10-16 14:43:56] local.INFO: Iniciando a leitura  
+[2024-10-16 14:43:56] local.CRITICAL: Erro ao consumir o Rabbit {"msg":"stream_socket_client(): Unable to connect to tcp://192.168.1.13:5672 (Connection refused)"} 
