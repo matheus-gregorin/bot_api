@@ -146,7 +146,7 @@ class OperatorsServices
 
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $operator = $this->operatorsRepository->getByUUid($uuid);
+        $operator = $this->operatorsRepository->getByUuid($uuid);
         if($operator){
             unset($operator['password']);
             return $operator;

@@ -6,8 +6,10 @@ use App\Http\Controllers\ItemsControllers;
 use App\Http\Controllers\ListOfPurchaseControllers;
 use App\Http\Controllers\MerchantsControllers;
 use App\Http\Controllers\OperatorsControllers;
+use App\Mail\SendWelcomeEmail;
 use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Twilio\Rest\Client;
 
@@ -62,18 +64,16 @@ Route::group(['prefix' => 'items', 'middleware' => 'jwt'], function(){
 
 Route::group(['prefix' => 'list', 'middleware' => 'jwt'], function(){
     Route::post('/create', [ListOfPurchaseControllers::class, 'create']);
-    Route::put('/update-list-items/{uuid}', [ListOfPurchaseControllers::class, 'updateListItems']);
-    Route::delete('/delete-item-list/{uuidList}/{merchantUuid}/{uuidItem}', [ListOfPurchaseControllers::class, 'deleteItemList']);
-    Route::delete('/deleted/{uuid}', [ListOfPurchaseControllers::class, 'deleted']);
-    Route::get('/all', [ListOfPurchaseControllers::class, 'getAll']);
-    Route::get('/all/{clientUuid}/client', [ListOfPurchaseControllers::class, 'allByClient']);
-    Route::get('/all/{merchantUuid}/merchant', [ListOfPurchaseControllers::class, 'allByMerchant']);
-    Route::get('/get/{uuid}', [ListOfPurchaseControllers::class, 'get']);
+    Route::put('/update-items/{uuid}', [ListOfPurchaseControllers::class, 'updateItems']);
+    Route::put('/update/{uuid}', [ListOfPurchaseControllers::class, 'update']);
 });
 
 Route::post('sender/message', function(Request $request){
 
     try{
+
+        $resp = Mail::to("math.gregorin@gmail.com")->send(new SendWelcomeEmail());
+        dd(123, $resp);
 
         $producer = (new App\Publishers\OrderReceivedEvent($request->get('info')))->publish();
         //$consumer = (new App\Workers\TestOrderDoneWorker)->subscribe();

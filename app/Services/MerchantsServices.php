@@ -101,7 +101,7 @@ class MerchantsServices
     {
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $merchant = $this->merchantsRepository->getByUUid($uuid);
+        $merchant = $this->merchantsRepository->getByUuid($uuid);
         if($merchant){
             unset($merchant['password']);
             return $merchant;
@@ -123,7 +123,7 @@ class MerchantsServices
 
         $setOn = $data['operation'];
 
-        $merchant = $this->merchantsRepository->getByUUid($uuid);
+        $merchant = $this->merchantsRepository->getByUuid($uuid);
         if($merchant){
             if($merchant->are_open != $setOn){
                 $merchant->are_open = $setOn;

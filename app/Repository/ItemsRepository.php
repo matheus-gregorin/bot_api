@@ -57,7 +57,22 @@ class ItemsRepository
         }
     }
 
-    public function updateQtd(string $uuid, $qtd)
+    public function removeQtd(string $uuid, int $qtd)
+    {
+        try{
+
+            $item = $this->itemsModel->where('uuid', $uuid)->get()->first();
+            if($item){
+                $item->qtd_item -= $qtd;
+                return $item->save();
+            }
+
+        } catch (Exception $e){
+            throw new Exception("Error in update qtd item (REMOVE) - " . $e->getMessage());
+        }
+    }
+
+    public function addQtd(string $uuid, int $qtd)
     {
         try{
 
@@ -68,7 +83,7 @@ class ItemsRepository
             }
 
         } catch (Exception $e){
-            throw new Exception("Error in update qtd item - " . $e->getMessage());
+            throw new Exception("Error in update qtd item (ADD) - " . $e->getMessage());
         }
     }
 }

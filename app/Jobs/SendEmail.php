@@ -35,17 +35,6 @@ class SendEmail implements ShouldQueue
         $email = 'math.gregorin@gmail.com';
         $message = 'bem-vindo ao app';
 
-        Mail::send('welcome', ['user' => $email, 'message' => $message], function ($m) {
-
-            $email = 'math.gregorin@gmail.com';
-            $message = 'bem-vindo ao app';
-
-            $send = $m->to($email, $email)->subject('Welcome!');
-
-            Log::info('DISPATCH', [
-                'message_returned' => $send
-            ]);
-
-        });
+        // Mail::to('destinatario@example.com')->send(new \App\Mail\SeuEmailMailable());
     }
 }

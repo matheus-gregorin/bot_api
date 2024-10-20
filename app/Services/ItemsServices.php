@@ -20,7 +20,7 @@ class ItemsServices
     public function create(array $data)
     {
         $data = ["uuid" => Uuid::uuid4()->toString()] + $data;
-        $merchant = $this->merchantsRepository->getByUUid($data['merchant_uuid']);
+        $merchant = $this->merchantsRepository->getByUuid($data['merchant_uuid']);
 
         if($merchant){
             if($data['qtd_item'] > 0){
@@ -87,7 +87,7 @@ class ItemsServices
     public function allByMerchant(string $merchantUuid, array $data)
     {
 
-        $merchant = $this->merchantsRepository->getByUUid($merchantUuid);
+        $merchant = $this->merchantsRepository->getByUuid($merchantUuid);
         if($merchant){
             $items = $this->itemsRepository->allByMerchant($merchantUuid);
             if($items){

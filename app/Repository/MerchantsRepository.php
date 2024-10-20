@@ -35,7 +35,7 @@ class MerchantsRepository
         }
     }
 
-    public function getByUUid(string $uuid)
+    public function getByUuid(string $uuid)
     {
         try{
 

@@ -52,7 +52,7 @@ class JwtMiddleware
             throw new Exception('Not contains Auth', 401);
 
         } catch (Exception $e) {
-            return response()->json(['message' => "Erro no token - " . $e->getMessage()]);
+            return response()->json(['message' => "Token error - " . $e->getMessage()]);
 
         }
     }

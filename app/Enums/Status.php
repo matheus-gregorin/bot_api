@@ -1,0 +1,11 @@
+<?php
+
+namespace App\Enums;
+
+class Status 
+{
+    public static string $LIST_PURCHASE_STATUS_AWAIT = "AWAIT";
+
+    public static string $CASE_CREATE = "CREATE";
+    public static string $CASE_UPDATE = "UPDATE";
+}

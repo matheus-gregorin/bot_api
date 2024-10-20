@@ -35,14 +35,15 @@ class ListOfPurchaseRepository
         }
     }
 
-    public function updatedItems($uuid, array $items)
+    public function update($uuid, array $data)
     {
         try{
 
-            $this->listOfPurchaseModel->where("uuid", $uuid)->update(['items' => $items]) ;
+            //Não finalizado ainda
+            $this->listOfPurchaseModel->where("uuid", $uuid)->update() ;
 
         } catch (Exception $e){
-            throw new Exception("Error in updated items - " . $e->getMessage(), 400);
+            throw new Exception("Error in updated list - " . $e->getMessage(), 400);
         }
     }
 
@@ -106,20 +107,7 @@ class ListOfPurchaseRepository
         }
     }
 
-    public function allListsByMerchantUuid(string $uuid)
-    {
-        try{
-
-            $query = $this->listOfPurchaseModel::query();
-
-            return $query->where('items.' . $uuid, 'exists', true)->get();
-            
-        } catch (Exception $e){
-            throw new Exception("Error in get by merchant uuid list of purchase, uuid: " . $uuid . " - " . $e->getMessage(), 400);
-        }
-    }
-
-    public function updateListItems(string $uuid, $valueList, array $itemsList)
+    public function updateListItems(string $uuid, float $valueList, array $itemsList)
     {
         try{
 

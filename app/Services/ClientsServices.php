@@ -92,7 +92,7 @@ class ClientsServices
 
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $client = $this->clientsRepository->getByUUid($uuid);
+        $client = $this->clientsRepository->getByUuid($uuid);
         if($client){
             unset($client['password']);
             return $client;
