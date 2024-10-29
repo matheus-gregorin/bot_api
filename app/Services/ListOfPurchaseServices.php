@@ -110,7 +110,6 @@ class ListOfPurchaseServices
                 case Status::$CASE_UPDATE:
 
                     $itemsCurrent = $list->items;
-                    //dd(array_key_exists($uuid, $itemsCurrent), $uuid, $itemsCurrent);
                     if(array_key_exists($uuid, $itemsCurrent)){
 
                         if($qtd > 0 && $qtd > $itemsCurrent[$uuid]){
@@ -134,6 +133,10 @@ class ListOfPurchaseServices
 
                     }
                     break;
+
+                        // PARA A EXCLUSÂO DA LISTA E RETORNO DOS ITEMS
+                        // SERÁ NECESSÀRIO CRIAR UM NOVO CASE
+                
             }
         }
 

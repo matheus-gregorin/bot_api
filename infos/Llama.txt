@@ -1,0 +1,44 @@
+Para utilizarmos a api do Llama é muito simples:
+
+Primeiro precisaremos fazer o download da imagem ou do app na maquina que desejar (Local ou servidor)
+
+`docker pull ollama/ollama`
+
+após a imagem ser baixada, rodamos o comando para que ele suba o container com as especificações das portas
+
+`docker run -p 11434:11434 ollama/ollama --name ollama`
+
+Isso rodará o container com seus logs abertos no terminal, então abra um outro terminal e insira esse comando abaixo:
+
+`docker exec -it ollama ollama run llama3.2`
+
+Esse comando importará a versão 3.2 do llama, após isso já conseguiremos usar a sua API como um prompt.
+
+Se quisermos implementar um pouco mais, conseguimos definir as caracteristicas da IA, utilizando o endpoint
+
+POST `http://localhost:11434/api/create`
+BODY:
+
+`
+{
+  "name": "mario",
+  "modelfile": "FROM llama3\nSYSTEM You are mario from Super Mario Bros."
+}
+`
+
+Isso definirá a personalidade de sua ia, podendo colocar muito mais informações de comportamento. Após isso, insirá o comando `docker exec -it ollama ollama list`
+no terminal e ele irá listar todas as models que vc tem acesso para utilizar ou o endpoint GET `http://localhost:11434/api/tags`, fará o mesmo.
+
+após isso é só utilizar um SDK ou a API para utilizar a aplicação:
+
+POST `http://localhost:11434/api/generate`
+BODY:
+`
+{
+    "model": "mario ou llama3.2",
+    "prompt": "Olá, quem é vc?",
+    "stream": false (Isso define a forma como é retornado a mensage, qubrada em varias partes ou de uma vez só)
+}
+`
+
+
