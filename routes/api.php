@@ -1,15 +1,13 @@
 <?php
 
-use App\Events\OrderReceivedEvent;
 use App\Http\Controllers\ClientsControllers;
 use App\Http\Controllers\ItemsControllers;
 use App\Http\Controllers\ListOfPurchaseControllers;
 use App\Http\Controllers\MerchantsControllers;
 use App\Http\Controllers\OperatorsControllers;
-use App\Mail\SendWelcomeEmail;
+use App\Jobs\SendEmail;
 use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Twilio\Rest\Client;
 
@@ -72,17 +70,20 @@ Route::post('sender/message', function(Request $request){
 
     try{
 
-        $resp = Mail::to("math.gregorin@gmail.com")->send(new SendWelcomeEmail());
-        dd(123, $resp);
-
-        $producer = (new App\Publishers\OrderReceivedEvent($request->get('info')))->publish();
-        //$consumer = (new App\Workers\TestOrderDoneWorker)->subscribe();
-        dd("Ok");
+        $message = $request->get('message');
+        $producer = (new App\Publishers\OrderReceivedEvent($message))->publish();
+        return true;
 
     } catch (Exception $e){
         dd($e->getMessage());
     }
 
+});
+
+
+Route::post("/queue", function(Request $request){
+    SendEmail::dispatch()->delay(5);
+    return true;
 });
 
 

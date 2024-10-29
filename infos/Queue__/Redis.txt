@@ -1,0 +1,25 @@
+Para utilizarmos o redis como nossa fila é necessário algumas configurações:
+
+Primeiro precisamos inserir nas variaveis de ambiente as seguintes configurações:
+
+QUEUE_CONNECTION='redis'
+REDIS_HOST='Host da maquina a utilizar'
+REDIS_PASSWORD=null
+REDIS_PORT=6379 (Porta padrão)
+
+Após isso dentro do Dockerfile na linha 23 até a 25 há a inserção de extensão do redis no php dentro do container
+(Download e habilitação pelo Dockerfile), podemos ver que na linha 54 é disparado o `scripts/init-queue.sh` que faz 
+a criação do arquivo de config que vai iniciar o worker da queue (redis) pelo supervisor
+
+O disparo é feito atravéz do comando `php /var/www/html/artisan queue:work redis`
+na linha 27
+
+Para finalizar precisamos rodar o comando:
+`docker run --name redis-container -p 6379:6379 redis`
+
+Que vai criar o nosso container de redis
+
+Obs* Necessário lembrar que para conectar ao container, é preciso adicionar o host da maquina aond está rodando o container
+(Local ou pelo servidor)
+
+Obs* Os logs são inseridos no arquivo da raiz `listener-queue.log`

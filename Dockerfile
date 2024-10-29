@@ -19,6 +19,10 @@ RUN docker-php-ext-install sockets
 # Instale a extensão do MongoDB com suporte a SSL
 RUN pecl install mongodb && docker-php-ext-enable mongodb
 
+# Instalar a extensão phpredis
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
 # Instale o Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -42,6 +46,12 @@ RUN chmod +x /var/www/html/scripts/init-listener-rabbit.sh
 
 # Executar o script durante o processo de construção
 RUN /var/www/html/scripts/init-listener-rabbit.sh
+
+# Tornar o script executável
+RUN chmod +x /var/www/html/scripts/init-queue.sh
+
+# Executar o script durante o processo de construção
+RUN /var/www/html/scripts/init-queue.sh
 
 # Rodando o composer install
 RUN composer install

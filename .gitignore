@@ -16,3 +16,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+gcp-key.json
+listener-queue.log
+listener-rabbit.log

@@ -1,7 +1,7 @@
 O Processo com o RabbitMq é realizado por meio de uma biblioteca chamada:
 `pablicio/mirabel-rabbitmq`
 
-Necessário inserir as variaveis de ambientepara conexão:
+Necessário inserir as variaveis de ambiente para conexão:
 MB_RABBITMQ_HOS="192.168.1.8"
 MB_RABBITMQ_PORT=5672
 MB_RABBITMQ_USER="guest"

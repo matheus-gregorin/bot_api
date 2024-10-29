@@ -23,15 +23,12 @@ class StoreOrderReceivedWorker
     public function work($msg)
     {
       try {
-        if ($msg->body == 'test') {
-          throw new \Exception("Error Processing Request", 1);
-        }
-        print_r("Deu bom - Message -> " . $msg->body . "\n");
-  
+        print_r("Messagem: $msg->body\n");
         return $this->ack($msg);
+
       } catch (\Exception $e) {
-        print_r("Deu erro" . $msg->body . "\n");
-  
+
+        print_r("Error: $msg->body\n");  
         return $this->nack($msg);
       }
     }
