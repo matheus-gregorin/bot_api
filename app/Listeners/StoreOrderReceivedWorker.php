@@ -25,14 +25,7 @@ class StoreOrderReceivedWorker
     public function work($msg)
     {
       try {
-
-        $listUuid = $msg->body;
-        $listOfPurchaseService = app(ListOfPurchaseServices::class);
-
-        Log::info('Listener send new email', ['uuidList' => $listUuid]);
-
-        $listOfPurchaseService->sendEmail($listUuid);
-
+        Log::info('Listener send new email', ['message' => $msg->body]);
         return $this->ack($msg);
 
       } catch (\Exception $e) {

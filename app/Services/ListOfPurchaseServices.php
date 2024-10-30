@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Enums\Status;
+use App\Jobs\SendEmailConfirmList;
 use App\Jobs\sendEmailListPurchase;
+use App\Models\Clients;
 use App\Models\ListOfPurchase;
 use App\Publishers\OrderReceivedEvent;
 use App\Repository\ClientsRepository;
@@ -53,9 +55,9 @@ class ListOfPurchaseServices
         $list = $this->listOfPurchaseRepository->create($listOfPurchase);
 
         try{
-
             // Dispatch menssenger
-            (new OrderReceivedEvent($listOfPurchase->uuid))->publish();
+            (new OrderReceivedEvent("Create list " . $listOfPurchase->uuid))->publish();
+            $this->sendEmail($listOfPurchase, $data['client_uuid']);
     
         } catch (Exception $e){
             Log::info("Error to send email of List", ['message' => $e->getMessage()]);
@@ -215,10 +217,26 @@ class ListOfPurchaseServices
         throw new Exception("List not found");
     }
 
-    public function sendEmail(string $uuid)
+    public function sendEmail(ListOfPurchase $listOfPurchase, string $uuidClient)
     {
         try {
-            sendEmailListPurchase::dispatch()->delay(5);
+
+            $client = $this->clientRepository->getByUuid($uuidClient);
+            if(!empty($client)){
+
+                $data = [];
+                foreach($listOfPurchase->items as $uuidItem => $qtd){
+                    $item = $this->itemsRepository->getBytUuid($uuidItem);
+                    $data[] = [
+                        'name' => $item->name_item,
+                        'value' => $item->value,
+                        'qtd' => $qtd
+                    ];
+                }
+
+                //Job
+                return SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
+            }
 
         }
         catch(Exception $e){
