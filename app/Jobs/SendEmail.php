@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Models\Operators;
+use App\Repository\OperatorsRepository;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,14 +17,17 @@ class SendEmail implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    private string $userUuid;
+    private OperatorsRepository $operators;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(string $uuid)
     {
-        //
+        $this->userUuid = $uuid;
+        $this->operators = new OperatorsRepository(new Operators());
     }
 
     /**
@@ -32,18 +37,14 @@ class SendEmail implements ShouldQueue
      */
     public function handle()
     {
-        $email = 'math.gregorin@gmail.com';
-        $message = 'bem-vindo ao app';
-
         try {
 
-            $email = Mail::to($email)->send(new \App\Mail\SendWelcomeEmail());
-            print_r("Email enviado");
+            $user = $this->operators->getByUuid($this->userUuid);
+            $email = Mail::to($user->email)->send(new \App\Mail\SendWelcomeEmail($user));
+            Log::info("Send email operator", ['user' => $user->uuid, 'email'=> $email]);
 
         } catch (\Exception $e) {
-
-            print_r($e->getMessage());
-
+            Log::error("Send email operator error", ['message' => $e->getMessage()]);
         }
     }
 }

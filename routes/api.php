@@ -5,7 +5,6 @@ use App\Http\Controllers\ItemsControllers;
 use App\Http\Controllers\ListOfPurchaseControllers;
 use App\Http\Controllers\MerchantsControllers;
 use App\Http\Controllers\OperatorsControllers;
-use App\Jobs\SendEmail;
 use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -64,28 +63,10 @@ Route::group(['prefix' => 'list', 'middleware' => 'jwt'], function(){
     Route::post('/create', [ListOfPurchaseControllers::class, 'create']);
     Route::put('/update-items/{uuid}', [ListOfPurchaseControllers::class, 'updateItems']);
     Route::put('/update/{uuid}', [ListOfPurchaseControllers::class, 'update']);
+    Route::delete('/delete/{uuid}', [ListOfPurchaseControllers::class, 'delete']);
+    Route::get('/all', [ListOfPurchaseControllers::class, 'getAll']);
+    Route::get('/get/{uuid}', [ListOfPurchaseControllers::class, 'get']);
 });
-
-Route::post('sender/message', function(Request $request){
-
-    try{
-
-        $message = $request->get('message');
-        $producer = (new App\Publishers\OrderReceivedEvent($message))->publish();
-        return true;
-
-    } catch (Exception $e){
-        dd($e->getMessage());
-    }
-
-});
-
-
-Route::post("/queue", function(Request $request){
-    SendEmail::dispatch()->delay(5);
-    return true;
-});
-
 
 // ARQUIVO NA RAIZ CHAMADO INFO_GEMINI com todos os recursos
 Route::group(['prefix' => 'webhook'], function(){

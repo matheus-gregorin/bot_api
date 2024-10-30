@@ -2,8 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\Operators;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -13,14 +13,15 @@ class SendWelcomeEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private Operators $operator;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Operators $operator)
     {
-        //
+        $this->operator = $operator;
     }
 
     /**
@@ -31,7 +32,7 @@ class SendWelcomeEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Send Welcome Email',
+            subject: "Seja muito bem vindo ao BOTT " . $this->operator->name,
         );
     }
 
@@ -44,7 +45,7 @@ class SendWelcomeEmail extends Mailable
     {
         return new Content(
             view: 'emails.SendWelcomeEmail',
-            with: []
+            with: ['user' => $this->operator],
         );
     }
 

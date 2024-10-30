@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use App\Enums\Status;
+use App\Jobs\sendEmailListPurchase;
 use App\Models\ListOfPurchase;
+use App\Publishers\OrderReceivedEvent;
 use App\Repository\ClientsRepository;
 use App\Repository\ItemsRepository;
 use App\Repository\ListOfPurchaseRepository;
 use App\Repository\MerchantsRepository;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 
 class ListOfPurchaseServices
@@ -47,7 +50,18 @@ class ListOfPurchaseServices
         $value = $this->calculateValueAndUpdateItem(Status::$CASE_CREATE, $data['items'], null);
         $listOfPurchase->value = $value;
 
-        return $this->listOfPurchaseRepository->create($listOfPurchase);
+        $list = $this->listOfPurchaseRepository->create($listOfPurchase);
+
+        try{
+
+            // Dispatch menssenger
+            (new OrderReceivedEvent($listOfPurchase->uuid))->publish();
+    
+        } catch (Exception $e){
+            Log::info("Error to send email of List", ['message' => $e->getMessage()]);
+        }
+
+        return $list;
 
     }
 
@@ -67,7 +81,48 @@ class ListOfPurchaseServices
     {
         $list = $this->listOfPurchaseRepository->getByUuid($listUuid);
         if(!empty($list)){
-            dd(123, $data);
+            
+            if(!empty($data['date_schedule'])){
+                $list->date_schedule = $data['date_schedule'];
+            }
+
+            if(!empty($data['form_purchase'])){
+                $list->form_purchase = $data['form_purchase'];
+            }
+
+            if(!empty($data['address_send'])){
+                $address = $list->address_send;
+
+                if(!empty($data['address_send']['street'])){
+                    $address['street'] = $data['address_send']['street'];
+                }
+                if(!empty($data['address_send']['number'])){
+                    $address['number'] = $data['address_send']['number'];
+                }
+                if(!empty($data['address_send']['neighborhood'])){
+                    $address['neighborhood'] = $data['address_send']['neighborhood'];
+                }
+                if(!empty($data['address_send']['city'])){
+                    $address['city'] = $data['address_send']['city'];
+                }
+
+                $list->address_send = $address;
+            }
+
+            $this->listOfPurchaseRepository->update($list);
+        }
+
+        throw new Exception("List not found", 400);
+    }
+
+    public function delete(string $listUuid, array $data)
+    {
+        checkingWhetherTheRequestWasMadeByAManager($data);
+
+        $list = $this->listOfPurchaseRepository->getByUuid($listUuid);
+        if(!empty($list)){
+            $this->calculateValueAndUpdateItem(Status::$CASE_DELETE, $list->items, $list);
+            return $this->listOfPurchaseRepository->deleted($list->uuid);
         }
 
         throw new Exception("List not found", 400);
@@ -133,13 +188,41 @@ class ListOfPurchaseServices
 
                     }
                     break;
+                
+                case Status::$CASE_DELETE:
 
-                        // PARA A EXCLUSÂO DA LISTA E RETORNO DOS ITEMS
-                        // SERÁ NECESSÀRIO CRIAR UM NOVO CASE
+                    $this->itemsRepository->addQtd($uuid, $qtd);
                 
             }
         }
 
         return $totalValue;
+    }
+
+    public function getAll(array $data)
+    {
+        return $this->listOfPurchaseRepository->getAll($data);
+    }
+
+    public function get(string $uuid, ?array $data = [])
+    {
+
+        $list = $this->listOfPurchaseRepository->getBytUuid($uuid);
+        if($list){
+            return $list;
+        }
+
+        throw new Exception("List not found");
+    }
+
+    public function sendEmail(string $uuid)
+    {
+        try {
+            sendEmailListPurchase::dispatch()->delay(5);
+
+        }
+        catch(Exception $e){
+            Log::critical("ERROR", [$e->getMessage()]);
+        }  
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Listeners;
 
+use App\Services\ListOfPurchaseServices;
+use Illuminate\Support\Facades\Log;
 use Pablicio\MirabelRabbitmq\RabbitMQWorkersConnection;
 
 class StoreOrderReceivedWorker
@@ -23,12 +25,18 @@ class StoreOrderReceivedWorker
     public function work($msg)
     {
       try {
-        print_r("Messagem: $msg->body\n");
+
+        $listUuid = $msg->body;
+        $listOfPurchaseService = app(ListOfPurchaseServices::class);
+
+        Log::info('Listener send new email', ['uuidList' => $listUuid]);
+
+        $listOfPurchaseService->sendEmail($listUuid);
+
         return $this->ack($msg);
 
       } catch (\Exception $e) {
-
-        print_r("Error: $msg->body\n");  
+        print_r("Error:", $msg->body);  
         return $this->nack($msg);
       }
     }

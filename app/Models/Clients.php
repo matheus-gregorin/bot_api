@@ -22,6 +22,8 @@ class Clients extends Model
         'uuid',
         'name',
         'date_of_birth',
+        'number',
+        'email',
         'address',
         'activate',
         'updated_at',

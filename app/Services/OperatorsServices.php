@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Jobs\SendEmail;
+use App\Repository\BlackListTokensRepository;
 use App\Repository\LoginLogoutRepository;
 use App\Repository\OperatorsRepository;
 use Carbon\Carbon;
@@ -18,10 +20,17 @@ class OperatorsServices
 
     private OperatorsRepository $operatorsRepository;
     private LoginLogoutRepository $loginLogoutRepository;
+    private BlackListTokensRepository $blackListTokensRepository;
 
-    public function __construct(OperatorsRepository $operatorsRepository, LoginLogoutRepository $loginLogoutRepository) {
+    public function __construct(
+        OperatorsRepository $operatorsRepository,
+        LoginLogoutRepository $loginLogoutRepository,
+        BlackListTokensRepository $blackListTokensRepository
+    ) 
+    {
         $this->operatorsRepository = $operatorsRepository;
         $this->loginLogoutRepository = $loginLogoutRepository;
+        $this->blackListTokensRepository = $blackListTokensRepository;
     }
 
     public function create(array $data)
@@ -29,7 +38,7 @@ class OperatorsServices
 
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $operatorVerify = $this->operatorsRepository->get($data['name']);
+        $operatorVerify = $this->operatorsRepository->get($data['email']);
         if($operatorVerify){
             throw new Exception('Operator exists', 404);
         }
@@ -41,16 +50,19 @@ class OperatorsServices
         $user = $this->operatorsRepository->create($data);
         unset($user['password']);
 
+        // Dispatch email
+        SendEmail::dispatch($user->uuid)->delay(2);
+
         return $user;
     }
 
-    public function login(string $name, string $password)
+    public function login(string $email, string $password)
     {
-        $operator = $this->operatorsRepository->get($name);
+        $operator = $this->operatorsRepository->get($email);
         if($operator && password_verify($password, $operator->password)){
 
             $token = JWT::encode(
-                ['name' => $operator->name, 'permissions' => $operator->permissions, 'exp' => now()->addHours(12)->getTimestamp()],
+                ['name' => $operator->name, 'permissions' => $operator->permissions, 'exp' => now()->addHours(3)->getTimestamp()],
                 env('SECRET_JWT') ?? "X",
                 'HS256'
             );
@@ -65,14 +77,14 @@ class OperatorsServices
         throw new Exception("Credentials invalid", 401);
     }
 
-    public function logout(array $data)
+    public function logout(string $token, array $data)
     {
-
         $operator = $this->operatorsRepository->get($data['name_guest']);
         if($operator){
             if($operator->status == "Online"){
                 $this->loginLogoutRepository->logout(['operator_uuid' => $operator->uuid, 'log' => "Saída : " . Carbon::now()->toString()]);
                 $this->operatorsRepository->changeToOffline($operator->uuid);
+                $this->blackListTokensRepository->create(['token_jwt' => $token]);
     
                 return;
             }
@@ -90,29 +102,14 @@ class OperatorsServices
         $operator = $this->operatorsRepository->getByUuid($uuid);
         if($operator){
 
-            if($operator->name != $data['name_guest'] && !in_array("manager", $data["permissions_guest"])){
-                throw new Exception("You not permited action", 401);
-            }
-            
-            ///name
-            // if(!empty($data['name'])){
-            //     if($data['name'] != $operator->name){
-            //         $operator->name = $data['name'];
-            //     }
-            // }
-
             //permissions
             if(!empty($data['permissions'])){
                 $operator->permissions = $data['permissions'];
             }
 
-            //status
-            // if(!empty($data['status'])){
-            //     if($data['status'] != $operator->status){
-            //         var_dump(3);
-            //         $operator->status = $data['status'];
-            //     }
-            // }
+            if(!empty($data['email'])){
+                $operator->email = $data['email'];
+            }
 
             return $operator->save();
         }

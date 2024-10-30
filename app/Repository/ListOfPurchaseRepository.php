@@ -35,12 +35,11 @@ class ListOfPurchaseRepository
         }
     }
 
-    public function update($uuid, array $data)
+    public function update(ListOfPurchase $list)
     {
         try{
 
-            //Não finalizado ainda
-            $this->listOfPurchaseModel->where("uuid", $uuid)->update() ;
+            $list->save();
 
         } catch (Exception $e){
             throw new Exception("Error in updated list - " . $e->getMessage(), 400);
@@ -122,6 +121,18 @@ class ListOfPurchaseRepository
             
         } catch (Exception $e){
             throw new Exception("Error in add items in list of purchase, uuid: " . $uuid . " - " . $e->getMessage(), 400);
+        }
+    }
+
+
+    public function getBytUuid(string $uuid)
+    {
+        try{
+
+            return $this->listOfPurchaseModel->where('uuid', $uuid)->get()->first();
+
+        } catch (Exception $e){
+            throw new Exception("Error in get list - " . $e->getMessage());
         }
     }
 }

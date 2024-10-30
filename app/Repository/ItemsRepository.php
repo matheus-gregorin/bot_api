@@ -28,7 +28,7 @@ class ItemsRepository
     {
         try{
 
-            return $this->itemsModel->where('uuid', $uuid)->get()->first();
+            return $this->itemsModel->where('uuid', $uuid)->first();
 
         } catch (Exception $e){
             throw new Exception("Error in get items - " . $e->getMessage());

@@ -30,7 +30,7 @@ class OperatorsRepository
     {
         try{
 
-            return $this->operatorModel->where('name', $name)->get()->first();
+            return $this->operatorModel->where('email', $name)->get()->first();
 
         } catch (Exception $e){
             throw new Exception("Error in get operator - " . $e->getMessage(), 400);
@@ -121,6 +121,8 @@ class OperatorsRepository
     
             if(!empty($data['paginator'])){
                 $pages = $query->paginate($data['paginator']);
+            } else {
+                throw new Exception("Not content paginator", 400);
             }
 
             foreach($pages as $user){
@@ -131,6 +133,7 @@ class OperatorsRepository
                 $list[] = [
                     'uuid' => $user->uuid,
                     'name' => $user->name,
+                    'email' => $user->email,
                     'permissions' => $user->permissions,
                     'status' => $user->status,
                     'created_at' => $createAt->toDateTimeString(),

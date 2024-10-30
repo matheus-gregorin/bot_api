@@ -67,4 +67,62 @@ class ListOfPurchaseControllers extends Controller
             ]);
         }
     }
+
+    public function delete(string $listUuid, Request $request)
+    {
+        try{
+
+            $this->listOfPurchaseServices->delete($listUuid, $request->all());
+
+            return response()->json([
+                'success' => true
+            ]);
+
+        } catch (Exception $e){
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getAll(Request $request)
+    {
+        try{
+
+            $lists = $this->listOfPurchaseServices->getAll($request->all());
+            $total = count($lists);
+
+            return response()->json([
+                'success' => true,
+                'lists' => $lists,
+                'total' => $total
+            ]);
+
+        } catch (Exception $e){
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function get(string $uuid, Request $request)
+    {
+        try{
+
+            $list = $this->listOfPurchaseServices->get($uuid, $request->all());
+
+            return response()->json([
+                'success' => true,
+                'list' => $list
+            ]);
+
+        } catch (Exception $e){
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

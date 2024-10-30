@@ -94,6 +94,8 @@ class ClientsRepository
                     'uuid' => $client->uuid,
                     'name' => $client->name,
                     'date_of_birth' => $client->date_of_birth,
+                    'number' => $client->number,
+                    'email' => $client->email,
                     'address' => $client->address,
                     'activate' => $client->activate,
                     'created_at' => $createAt->toDateTimeString(),

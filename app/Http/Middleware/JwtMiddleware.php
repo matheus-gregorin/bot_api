@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Repository\BlackListTokensRepository;
 use Closure;
 use Exception;
 use Firebase\JWT\JWT;
@@ -26,6 +27,13 @@ class JwtMiddleware
 
             if($tokenHeader){
 
+                $blacklistTokenRepository = app(BlackListTokensRepository::class);
+                $validToken = $blacklistTokenRepository->getByToken($tokenHeader);
+
+                if(!empty($validToken)){
+                    throw new Exception("Expired", 404);
+                }
+
                 $explodeString = explode("Bearer ", $tokenHeader, 2) ?? false;
                 if(!$explodeString){
                     throw new Exception('Token not content Bearer', 401);
@@ -33,7 +41,7 @@ class JwtMiddleware
 
                 $token = $explodeString[1] ?? false;
                 if(!$token){
-                    throw new Exception('Token invalid', 401);
+                    throw new Exception('Invalid', 401);
                 }
     
                 $token = JWT::decode($token, new Key(env('SECRET_JWT') ?? "X", 'HS256'));

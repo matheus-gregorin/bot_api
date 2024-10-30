@@ -26,6 +26,7 @@ class Operators extends Model
     protected $fillable = [
         'uuid',
         'name',
+        'email',
         'password',
         'permissions',
         'status',

@@ -38,12 +38,12 @@ class OperatorsControllers extends Controller
     {
         try{
 
-            $token = $this->operatorsServices->login($request->get('name'), $request->get('password'));
+            $token = $this->operatorsServices->login($request->get('email'), $request->get('password'));
 
             return response()->json([
                 'success' => true, 
                 'token' => $token,
-                'expire_in' => 12
+                'expire_in' => 3
             ]);
 
         } catch (Exception $e){
@@ -58,7 +58,9 @@ class OperatorsControllers extends Controller
     {
         try{
 
-            $this->operatorsServices->logout($request->all());
+            $token = !empty($request->header('authorization')) ? $request->header('authorization') : throw new Exception("Token not exists", 404);
+
+            $this->operatorsServices->logout($token, $request->all());
 
             return response()->json([
                 'success' => true

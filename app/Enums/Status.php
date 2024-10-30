@@ -8,4 +8,5 @@ class Status
 
     public static string $CASE_CREATE = "CREATE";
     public static string $CASE_UPDATE = "UPDATE";
+    public static string $CASE_DELETE = "DELETE";
 }

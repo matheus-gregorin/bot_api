@@ -53,6 +53,16 @@ class ClientsServices
                 $client->address = $data['address'];
             }
 
+            //number
+            if(!empty($data['number'])){
+                $client->number = $data['number'];
+            }
+
+            // Email
+            if(!empty($data['email'])){
+                $client->email = $data['email'];
+            }
+
             //activate
             if(isset($data['activate'])){
                 if($data['activate'] != $client->activate){
