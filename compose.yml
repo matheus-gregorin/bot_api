@@ -1,5 +1,5 @@
 services:
-  seu_app:
+  bott:
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +10,26 @@ services:
     volumes:
       - .:/var/www/html
       - app_data:/var/www/html/public/uploads
-    container_name: projeto_bot
+    container_name: Bott_api
+
+  redis:
+    image: redis:latest
+    container_name: redis_bott
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: "bottRedis123456"
+    command: redis-server --requirepass bottRedis123456
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq_bott
+    ports:
+      - "5672:5672"       # Porta padrão para comunicação
+      - "15672:15672"     # Porta para interface de gerenciamento
+    environment:
+      RABBITMQ_DEFAULT_USER: "bott@gmail.com"
+      RABBITMQ_DEFAULT_PASS: "bottRabbit123456"
 
 volumes:
   app_data:

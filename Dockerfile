@@ -27,7 +27,7 @@ RUN pecl install redis \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Adicionar as linhas de configuração no arquivo supervisord.conf para habilitar o servidor dele na porta 9001
-RUN echo "\n[inet_http_server]\nport=*:9001\nusername=user\npassword=pass\n" >> /etc/supervisor/supervisord.conf
+RUN echo "\n[inet_http_server]\nport=*:9001\nusername=bottSup@gmail.com\npassword=bottSup123456\n" >> /etc/supervisor/supervisord.conf
 
 # Defina o diretório de trabalho como o diretório raiz do aplicativo
 WORKDIR /var/www/html

@@ -17,5 +17,3 @@ yarn-error.log
 /.idea
 /.vscode
 gcp-key.json
-listener-queue.log
-listener-rabbit.log
