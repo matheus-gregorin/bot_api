@@ -57,7 +57,7 @@ class ListOfPurchaseServices
         try{
             // Dispatch menssenger
             (new OrderReceivedEvent("Create list " . $listOfPurchase->uuid))->publish();
-            $this->sendEmail($listOfPurchase, $data['client_uuid']);
+            $this->sendEmailOfConfirmPurchase($listOfPurchase, $data['client_uuid']);
     
         } catch (Exception $e){
             Log::info("Error to send email of List", ['message' => $e->getMessage()]);
@@ -217,7 +217,7 @@ class ListOfPurchaseServices
         throw new Exception("List not found");
     }
 
-    public function sendEmail(ListOfPurchase $listOfPurchase, string $uuidClient)
+    public function sendEmailOfConfirmPurchase(ListOfPurchase $listOfPurchase, string $uuidClient)
     {
         try {
 
@@ -235,7 +235,7 @@ class ListOfPurchaseServices
                 }
 
                 //Job
-                return SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
+                SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
             }
 
         }

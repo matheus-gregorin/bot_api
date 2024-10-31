@@ -44,8 +44,8 @@ class SendEmailConfirmList implements ShouldQueue
         try {
 
             Log::info("", [$this->listOfPurchase, $this->client, $this->data]);
-            $email = Mail::to($this->client->email)->send(new SendEmailConfirmListMail($this->listOfPurchase, $this->client, $this->data));
-            Log::info("Send email operator", ['user' => $this->client->uuid, 'email'=> $this->client->email]);
+            Mail::to($this->client->email)->send(new SendEmailConfirmListMail($this->listOfPurchase, $this->client, $this->data));
+            Log::info("Send email operator", []);
 
         } catch (\Exception $e) {
             Log::error("Send email operator error", ['message' => $e->getMessage()]);
