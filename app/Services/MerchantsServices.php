@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repository\MerchantsRepository;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 
 class MerchantsServices
@@ -113,6 +114,8 @@ class MerchantsServices
     public function all(array $data)
     {
         checkingWhetherTheRequestWasMadeByAManager($data);
+
+        Log::info("", ['data' => $data]);
 
         return $this->merchantsRepository->listAll($data);
     }

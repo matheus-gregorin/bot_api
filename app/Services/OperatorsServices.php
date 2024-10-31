@@ -11,6 +11,7 @@ use Exception;
 use Firebase\JWT\JWT;
 use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
 use Twilio\Rest\Client;
 
@@ -50,14 +51,21 @@ class OperatorsServices
         $user = $this->operatorsRepository->create($data);
         unset($user['password']);
 
-        // Dispatch email
-        SendEmail::dispatch($user->uuid)->delay(2);
+        try{
+
+            // Dispatch email
+            SendEmail::dispatch($user->uuid)->delay(2);
+
+        } catch (Exception $e){
+            Log::channel('stderr')->info($e->getMessage());
+        }
 
         return $user;
     }
 
     public function login(string $email, string $password)
     {
+        Log::info('', ['email'=> $email]);
         $operator = $this->operatorsRepository->get($email);
         if($operator && password_verify($password, $operator->password)){
 

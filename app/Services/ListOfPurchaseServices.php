@@ -57,7 +57,8 @@ class ListOfPurchaseServices
         try{
             // Dispatch menssenger
             (new OrderReceivedEvent("Create list " . $listOfPurchase->uuid))->publish();
-            $this->sendEmailOfConfirmPurchase($listOfPurchase, $data['client_uuid']);
+            $email = $this->sendEmailOfConfirmPurchase($listOfPurchase, $data['client_uuid']);
+            Log::info("Send email and message", ['email' => $email]);
     
         } catch (Exception $e){
             Log::info("Error to send email of List", ['message' => $e->getMessage()]);
@@ -235,12 +236,13 @@ class ListOfPurchaseServices
                 }
 
                 //Job
-                SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
+                return SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
             }
 
         }
         catch(Exception $e){
             Log::critical("ERROR", [$e->getMessage()]);
+            return false;
         }  
     }
 }

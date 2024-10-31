@@ -29,9 +29,9 @@ autostart=true
 autorestart=true
 numprocs=1
 user=root
-redirect_stderr=true
-stdout_logfile=/var/www/html/listener-queue.log
-stderr_logfile=/var/www/html/listener-queue.log
+redirect_stderr=false
+# stdout_logfile=/var/www/html/listener-queue.log
+# stderr_logfile=/var/www/html/listener-queue.log
 EOF
 
   echo "Arquivo de configuração ${CONF_FILE} criado com sucesso."

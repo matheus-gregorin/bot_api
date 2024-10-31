@@ -21,7 +21,7 @@
                     <tr>
                         <th style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9;">Produto</th>
                         <th style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9;">Quantidade</th>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9;">Preço</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f9f9f9;">Preço Unidade</th>
                     </tr>
 
                     @foreach ($items as $item)

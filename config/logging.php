@@ -17,7 +17,7 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stderr'),
+    'default' => env('LOG_CHANNEL', 'null'),
 
     /*
     |--------------------------------------------------------------------------
@@ -31,7 +31,7 @@ return [
     */
 
     'deprecations' => [
-        'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
+        'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'stderr'),
         'trace' => false,
     ],
 
@@ -54,6 +54,11 @@ return [
         'facades' => [
             'driver' => 'stderr',
             'level' => 'debug',
+        ],
+
+        'job_logs' => [
+            'driver' => 'stack',
+            'channels' => ['daily', 'stderr'],
         ],
 
         'stack' => [

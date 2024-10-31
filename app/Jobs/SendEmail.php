@@ -39,6 +39,7 @@ class SendEmail implements ShouldQueue
     {
         try {
 
+            Log::channel('stderr')->info("Job iniciado.");
             $user = $this->operators->getByUuid($this->userUuid);
             $email = Mail::to($user->email)->send(new \App\Mail\SendWelcomeEmail($user));
             Log::info("Send email operator", ['user' => $user->uuid, 'email'=> $email]);
