@@ -2,18 +2,19 @@
 
 namespace App\Services;
 
+use App\Entitys\OperatorEntity;
+use App\Enums\Status;
 use App\Jobs\SendEmail;
 use App\Repository\BlackListTokensRepository;
 use App\Repository\LoginLogoutRepository;
 use App\Repository\OperatorsRepository;
 use Carbon\Carbon;
+use DateTimeZone;
 use Exception;
 use Firebase\JWT\JWT;
-use GeminiAPI\Laravel\Facades\Gemini;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
-use Twilio\Rest\Client;
 
 class OperatorsServices
 {
@@ -36,28 +37,34 @@ class OperatorsServices
 
     public function create(array $data)
     {
-
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $operatorVerify = $this->operatorsRepository->get($data['email']);
+        $operatorVerify = $this->operatorsRepository->getByEmail($data['email']);
         if($operatorVerify){
             throw new Exception('Operator exists', 404);
         }
 
-        $data = ["uuid" => Uuid::uuid4()->toString()] + $data;
-        $data['password'] = bcrypt($data['password']);
-        $data['status'] = "Offline";
+        $operator = new OperatorEntity(
+            Uuid::uuid4()->toString(),
+            $data['name'],
+            $data['email'],
+            bcrypt($data['password']),
+            $data['permissions'],
+            Status::$OPERATOR_STATUS_OFF,
+            Carbon::now(),
+            Carbon::now()
+        );
 
-        $user = $this->operatorsRepository->create($data);
+        $user = $this->operatorsRepository->create($operator->toArray());
         unset($user['password']);
 
         try{
 
             // Dispatch email
-            SendEmail::dispatch($user->uuid)->delay(2);
+            SendEmail::dispatch($user->uuid)->delay(5);
 
         } catch (Exception $e){
-            Log::channel('stderr')->info($e->getMessage());
+            Log::critical("Create operator error - Dispatch email", ['message' => $e->getMessage()]);
         }
 
         return $user;
@@ -65,20 +72,19 @@ class OperatorsServices
 
     public function login(string $email, string $password)
     {
-        Log::info('', ['email'=> $email]);
-        $operator = $this->operatorsRepository->get($email);
-        if($operator && password_verify($password, $operator->password)){
+        $operator = $this->operatorsRepository->getByEmail($email);
+        if($operator && password_verify($password, $operator->getPassword())){
 
             $token = JWT::encode(
-                ['name' => $operator->name, 'permissions' => $operator->permissions, 'exp' => now()->addHours(3)->getTimestamp()],
+                ['email' => $operator->getEmail(), 'permissions' => $operator->getPermissions(), 'exp' => now()->addHours(3)->getTimestamp()],
                 env('SECRET_JWT') ?? "X",
                 'HS256'
             );
 
-            $this->loginLogoutRepository->login(['operator_uuid' => $operator->uuid, 'log' => "Entrada : " . Carbon::now()->toString()]);
-            $this->operatorsRepository->changeToOnline($operator->uuid);
+            $this->loginLogoutRepository->login(['operator_uuid' => $operator->getUuid(), 'log' => "Entrada : " . Carbon::now()->toString()]);
+            $this->operatorsRepository->changeToOnline($operator->getUuid());
 
-        return $token;
+            return $token;
 
         }
 
@@ -87,13 +93,12 @@ class OperatorsServices
 
     public function logout(string $token, array $data)
     {
-        $operator = $this->operatorsRepository->get($data['name_guest']);
+        $operator = $this->operatorsRepository->getByEmail($data['email_guest']);
         if($operator){
-            if($operator->status == "Online"){
-                $this->loginLogoutRepository->logout(['operator_uuid' => $operator->uuid, 'log' => "Saída : " . Carbon::now()->toString()]);
-                $this->operatorsRepository->changeToOffline($operator->uuid);
+            if($operator->getStatus() == Status::$OPERATOR_STATUS_ON){
+                $this->loginLogoutRepository->logout(['operator_uuid' => $operator->getUuid(), 'log' => "Saída : " . Carbon::now()->toString()]);
+                $this->operatorsRepository->changeToOffline($operator->getUuid());
                 $this->blackListTokensRepository->create(['token_jwt' => $token]);
-    
                 return;
             }
             throw new Exception("Operator is already offline", 401);
@@ -110,16 +115,17 @@ class OperatorsServices
         $operator = $this->operatorsRepository->getByUuid($uuid);
         if($operator){
 
-            //permissions
+            // Permissions
             if(!empty($data['permissions'])){
-                $operator->permissions = $data['permissions'];
+                $operator->setPermissions($data['permissions']);
             }
 
+            // Email
             if(!empty($data['email'])){
-                $operator->email = $data['email'];
+                $operator->setEmail($data['email']);
             }
 
-            return $operator->save();
+            return $this->operatorsRepository->update($operator->getUuid(), $operator->toArray(false));
         }
 
         throw new Exception("Operator not found", 401);
@@ -132,7 +138,7 @@ class OperatorsServices
 
         $operator = $this->operatorsRepository->getByUuid($uuid);
         if($operator){
-            return $this->operatorsRepository->deleted($operator->uuid);
+            return $this->operatorsRepository->deleted($operator->getUuid());
         }
 
         throw new Exception("Operator not found", 401);
@@ -153,8 +159,8 @@ class OperatorsServices
 
         $operator = $this->operatorsRepository->getByUuid($uuid);
         if($operator){
-            unset($operator['password']);
-            return $operator;
+            $operator->setPassword("");
+            return $operator->toArray(true);
         }
 
         throw new Exception("Operator not found", 404);

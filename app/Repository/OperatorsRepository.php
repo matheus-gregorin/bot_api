@@ -2,6 +2,8 @@
 
 namespace App\Repository;
 
+use App\Entitys\OperatorEntity;
+use App\Enums\Status;
 use App\Models\Operators;
 use Carbon\Carbon;
 use DateTimeImmutable;
@@ -26,11 +28,16 @@ class OperatorsRepository
         }
     }
 
-    public function get(string $name)
+    public function getByEmail(string $email)
     {
         try{
 
-            return $this->operatorModel->where('email', $name)->get()->first();
+            $operator = $this->operatorModel->where('email', $email)->first();
+            if(!empty($operator)){
+                return $this->modelToEntity($operator);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get operator - " . $e->getMessage(), 400);
@@ -41,7 +48,12 @@ class OperatorsRepository
     {
         try{
 
-            return $this->operatorModel->where('uuid', $uuid)->get()->first();
+            $operator = $this->operatorModel->where('uuid', $uuid)->first();
+            if(!empty($operator)){
+                return $this->modelToEntity($operator);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get operator - " . $e->getMessage(), 400);
@@ -52,7 +64,7 @@ class OperatorsRepository
     {
         try{
 
-            $user = $this->operatorModel->where('uuid', $uuid)->get()->first();
+            $user = $this->operatorModel->where('uuid', $uuid)->first();
             if($user){
                 $user->status = "Online";
                 $user->save();
@@ -67,14 +79,25 @@ class OperatorsRepository
     {
         try{
 
-            $user = $this->operatorModel->where('uuid', $uuid)->get()->first();
-            if($user){
-                $user->status = "Offline";
-                $user->save();
+            $operator = $this->operatorModel->where('uuid', $uuid)->first();
+            if($operator){
+                $operator->status = Status::$OPERATOR_STATUS_OFF;
+                $operator->save();
             }
 
         } catch (Exception $e){
             throw new Exception("Error in get operator", 400);
+        }
+    }
+
+    public function update(string $uuid, array $data)
+    {
+        try{
+
+            $this->operatorModel->where('uuid', $uuid)->update($data);
+            
+        } catch (Exception $e){
+            throw new Exception("Error in updated operator, uuid: " . $uuid, 400);
         }
     }
 
@@ -110,14 +133,6 @@ class OperatorsRepository
             if(!empty($data['status'])){
                 $query->where('status', 'LIKE', '%'.$data['status'].'%');
             }
-
-            // if(!empty($data['created_at'])){
-            //     $query->where('created_at', '=', new DateTimeImmutable($data['created_at']));
-            // }
-
-            // if(!empty($data['updated_at'])){
-            //     $query->where('updated_at', '=', new DateTimeImmutable($data['updated_at']));
-            // }
     
             if(!empty($data['paginator'])){
                 $pages = $query->paginate($data['paginator']);
@@ -127,18 +142,8 @@ class OperatorsRepository
 
             foreach($pages as $user){
 
-                $createAt = $user->created_at;
-                $updatedAt = $user->updated_at;
-
-                $list[] = [
-                    'uuid' => $user->uuid,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'permissions' => $user->permissions,
-                    'status' => $user->status,
-                    'created_at' => $createAt->toDateTimeString(),
-                    'updated_at' => $updatedAt->toDateTimeString(),
-                ];
+                $operator = $this->modelToEntity($user);
+                $list[] = $operator->toArray(true);
             }
 
             $list['total'] = $pages->total();
@@ -149,4 +154,19 @@ class OperatorsRepository
             throw new Exception("Error in list all operators - " . $e->getMessage(), 400);
         }
     }
+    
+    public function modelToEntity(Operators $operatorModel)
+    {
+        return new OperatorEntity(
+            $operatorModel->uuid,
+            $operatorModel->name,
+            $operatorModel->email,
+            $operatorModel->password,
+            $operatorModel->permissions,
+            $operatorModel->status,
+            $operatorModel->updated_at,
+            $operatorModel->created_at
+        );
+    }
+
 }

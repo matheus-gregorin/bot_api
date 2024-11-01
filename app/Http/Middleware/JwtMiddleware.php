@@ -50,7 +50,7 @@ class JwtMiddleware
                     throw new Exception("Action not permited, contact support");
                 }
 
-                $request['name_guest'] = $token->name;
+                $request['email_guest'] = $token->email;
                 $request['permissions_guest'] = $token->permissions;
                 $request['tokenExpired'] = $token->exp;
 

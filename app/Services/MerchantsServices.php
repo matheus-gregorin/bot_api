@@ -19,7 +19,7 @@ class MerchantsServices
     {
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $merchantVerify = $this->merchantsRepository->get($data['name']);
+        $merchantVerify = $this->merchantsRepository->getByName($data['name']);
         if($merchantVerify){
             throw new Exception("Merchants exists", 404);
         }

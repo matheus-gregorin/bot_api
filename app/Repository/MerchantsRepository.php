@@ -24,11 +24,11 @@ class MerchantsRepository
         }
     }
 
-    public function get(string $name)
+    public function getByName(string $name)
     {
         try{
 
-            $this->merchantsModel->where('name', $name)->get()->first();
+            return $this->merchantsModel->where('name', $name)->first();
 
         } catch (Exception $e){
             throw new Exception("Error in get merchant - " . $e->getMessage(), 400);
