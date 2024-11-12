@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Entitys\ClientEntity;
 use App\Repository\ClientsRepository;
+use Carbon\Carbon;
 use Exception;
 use Ramsey\Uuid\Uuid;
 
@@ -18,15 +20,24 @@ class ClientsServices
     {
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        $clientVerify = $this->clientsRepository->get($data['name']);
+        $clientVerify = $this->clientsRepository->getByEmail($data['email']);
         if($clientVerify){
             throw new Exception("Client exists", 404);
         }
 
-        $data = ["uuid" => Uuid::uuid4()->toString()] + $data;
-        $data['activate'] = false;
+        $client = new ClientEntity(
+            Uuid::uuid4()->toString(),
+            $data["name"],
+            $data["date_of_birth"],
+            $data["number"],
+            $data["email"],
+            $data["address"],
+            false,
+            Carbon::now(),
+            Carbon::now()
+        );
 
-        return $this->clientsRepository->create($data);
+        return $this->clientsRepository->create($client->toArray(false));
     }
 
     public function updated(string $uuid, array $data)
@@ -36,41 +47,51 @@ class ClientsServices
 
         $client = $this->clientsRepository->getByUuid($uuid);
         if($client){
-
-            if($client->name != $data['name_guest'] && !in_array("manager", $data["permissions_guest"])){
-                throw new Exception("You not permited action", 401);
-            }
             
             ///name
             if(!empty($data['name'])){
-                if($data['name'] != $client->name){
-                    $client->name = $data['name'];
+                if($data['name'] != $client->getName()){
+                    $client->setName($data['name']);
                 }
             }
 
             //address
             if(!empty($data['address'])){
-                $client->address = $data['address'];
+
+                $address = [];
+
+                if(!empty($data['address']['street'])){
+                    $address['street'] = $data['address']['street'];
+                }
+
+                if(!empty($data['address']['number'])){
+                    $address['number'] = $data['address']['number'];
+                }
+
+                if(!empty($data['address']['neighborhood'])){
+                    $address['neighborhood'] = $data['address']['neighborhood'];
+                }
+
+                if(!empty($data['address']['city'])){
+                    $address['city'] = $data['address']['city'];
+                }
+
+                $client->setAddress($address);
             }
 
             //number
             if(!empty($data['number'])){
-                $client->number = $data['number'];
-            }
-
-            // Email
-            if(!empty($data['email'])){
-                $client->email = $data['email'];
+                $client->setNumber($data['number']);
             }
 
             //activate
             if(isset($data['activate'])){
-                if($data['activate'] != $client->activate){
-                    $client->activate = $data['activate'];
+                if($data['activate'] != $client->getActivate()){
+                    $client->setActivate($data['activate']);
                 }
             }
 
-            return $client->save();
+            return $this->clientsRepository->update($client->getUuid(), $client->toArray(false));
         }
 
         throw new Exception("client not found", 401);
@@ -83,7 +104,7 @@ class ClientsServices
 
         $client = $this->clientsRepository->getByUuid($uuid);
         if($client){
-            return $this->clientsRepository->deleted($client->uuid);
+            return $this->clientsRepository->deleted($client->getUuid());
         }
 
         throw new Exception("client not found", 401);
@@ -104,8 +125,7 @@ class ClientsServices
 
         $client = $this->clientsRepository->getByUuid($uuid);
         if($client){
-            unset($client['password']);
-            return $client;
+            return $client->toArray(true);
         }
 
         throw new Exception("client not found", 404);

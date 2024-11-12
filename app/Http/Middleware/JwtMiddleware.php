@@ -30,7 +30,7 @@ class JwtMiddleware
                 $blacklistTokenRepository = app(BlackListTokensRepository::class);
                 $validToken = $blacklistTokenRepository->getByToken($tokenHeader);
 
-                if(!empty($validToken)){
+                if(empty($validToken) || !$validToken['active']){
                     throw new Exception("Expired", 404);
                 }
 

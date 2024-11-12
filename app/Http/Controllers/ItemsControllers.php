@@ -37,10 +37,11 @@ class ItemsControllers extends Controller
     {
         try{
 
-            $this->itemsServices->updated($uuid, $request->all());
+            $item = $this->itemsServices->updated($uuid, $request->all());
 
             return response()->json([
-                'success' => true
+                'success' => true,
+                'item' => $item
             ]);
 
         } catch (Exception $e){
@@ -74,10 +75,13 @@ class ItemsControllers extends Controller
         try{
 
             $items = $this->itemsServices->allByMerchant($merchantUuid, $request->all());
+            $total = $items['total'] ?? 0;
+            unset($items['total']);
 
             return response()->json([
                 'success' => true,
-                'items' => $items
+                'items' => $items,
+                'total' => $total
             ]);
 
         } catch (Exception $e){

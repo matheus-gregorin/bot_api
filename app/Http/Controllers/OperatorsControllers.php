@@ -58,7 +58,10 @@ class OperatorsControllers extends Controller
     {
         try{
 
-            $token = !empty($request->header('authorization')) ? $request->header('authorization') : throw new Exception("Token not exists", 404);
+            $token = 
+            !empty($request->header('authorization')) ? 
+                $request->header('authorization') : 
+                    throw new Exception("Token not exists", 404);
 
             $this->operatorsServices->logout($token, $request->all());
 

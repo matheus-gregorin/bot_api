@@ -21,6 +21,7 @@ class BlackListTokens extends Model
 
     protected $fillable = [
         'token_jwt',
+        'active',
         'updated_at',
         'created_at'
     ];

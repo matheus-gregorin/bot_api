@@ -21,7 +21,8 @@ class ListOfPurchaseControllers extends Controller
             $purchase = $this->listOfPurchaseServices->create($request->all());
 
             return response()->json([
-                'success' => $purchase
+                'success' => true,
+                'list' => $purchase
             ]);
 
         } catch (Exception $e){

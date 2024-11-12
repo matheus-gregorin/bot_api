@@ -64,7 +64,7 @@ class ListOfPurchaseServices
             Log::info("Error to send email of List", ['message' => $e->getMessage()]);
         }
 
-        return $list;
+        return $listOfPurchase;
 
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Entitys\ClientEntity;
 use App\Mail\SendEmailConfirmListMail;
 use App\Models\Clients;
 use App\Models\ListOfPurchase;
@@ -19,7 +20,7 @@ class SendEmailConfirmList implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private ListOfPurchase $listOfPurchase;
-    private Clients $client;
+    private ClientEntity $client;
     private array $data;
 
     /**
@@ -27,7 +28,7 @@ class SendEmailConfirmList implements ShouldQueue
      *
      * @return void
      */
-    public function __construct( ListOfPurchase $listOfPurchase, Clients $client, array $data)
+    public function __construct( ListOfPurchase $listOfPurchase, ClientEntity $client, array $data)
     {
         $this->listOfPurchase = $listOfPurchase;
         $this->client = $client;
@@ -44,7 +45,7 @@ class SendEmailConfirmList implements ShouldQueue
         try {
 
             Log::info("", [$this->listOfPurchase, $this->client, $this->data]);
-            Mail::to($this->client->email)->send(new SendEmailConfirmListMail($this->listOfPurchase, $this->client, $this->data));
+            Mail::to($this->client->getEmail())->send(new SendEmailConfirmListMail($this->listOfPurchase, $this->client, $this->data));
             Log::info("Send email operator", []);
 
         } catch (\Exception $e) {

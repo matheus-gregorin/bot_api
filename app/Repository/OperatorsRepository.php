@@ -142,6 +142,7 @@ class OperatorsRepository
 
             foreach($pages as $user){
 
+                $user->password = "";
                 $operator = $this->modelToEntity($user);
                 $list[] = $operator->toArray(true);
             }

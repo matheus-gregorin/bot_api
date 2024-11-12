@@ -83,6 +83,9 @@ class OperatorsServices
 
             $this->loginLogoutRepository->login(['operator_uuid' => $operator->getUuid(), 'log' => "Entrada : " . Carbon::now()->toString()]);
             $this->operatorsRepository->changeToOnline($operator->getUuid());
+            $this->blackListTokensRepository->create(['token_jwt' => "Bearer " . $token, 'active' => true]);
+
+            Log::info('Login Success', []);
 
             return $token;
 
@@ -98,7 +101,7 @@ class OperatorsServices
             if($operator->getStatus() == Status::$OPERATOR_STATUS_ON){
                 $this->loginLogoutRepository->logout(['operator_uuid' => $operator->getUuid(), 'log' => "Saída : " . Carbon::now()->toString()]);
                 $this->operatorsRepository->changeToOffline($operator->getUuid());
-                $this->blackListTokensRepository->create(['token_jwt' => $token]);
+                $this->blackListTokensRepository->setDisable($token);
                 return;
             }
             throw new Exception("Operator is already offline", 401);

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entitys\MerchantEntity;
 use App\Models\Merchants;
 use Exception;
 
@@ -24,11 +25,27 @@ class MerchantsRepository
         }
     }
 
+    public function update(string $uuid, array $data)
+    {
+        try{
+
+            $this->merchantsModel->where('uuid', $uuid)->update($data);
+            
+        } catch (Exception $e){
+            throw new Exception("Error in updated merchant, uuid: " . $uuid, 400);
+        }
+    }
+
     public function getByName(string $name)
     {
         try{
 
-            return $this->merchantsModel->where('name', $name)->first();
+            $merchant = $this->merchantsModel->where('name', $name)->first();
+            if(!empty($merchant)){
+                return $this->modelToEntity($merchant);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get merchant - " . $e->getMessage(), 400);
@@ -39,7 +56,12 @@ class MerchantsRepository
     {
         try{
 
-            return $this->merchantsModel->where('uuid', $uuid)->get()->first();
+            $merchant = $this->merchantsModel->where('uuid', $uuid)->first();
+            if(!empty($merchant)){
+                return $this->modelToEntity($merchant);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get merchant - " . $e->getMessage(), 400);
@@ -82,21 +104,14 @@ class MerchantsRepository
     
             if(!empty($data['paginator'])){
                 $pages = $query->paginate($data['paginator']);
+            } else {
+                throw new Exception("Paginator not found", 400);
             }
 
             foreach($pages as $merchant){
 
-                $createAt = $merchant->created_at;
-                $updatedAt = $merchant->updated_at;
-
-                $list[] = [
-                    'uuid' => $merchant->uuid,
-                    'name' => $merchant->name,
-                    'address' => $merchant->address,
-                    'are_open' => $merchant->are_open,
-                    'created_at' => $createAt->toDateTimeString(),
-                    'updated_at' => $updatedAt->toDateTimeString(),
-                ];
+                $merchant = $this->modelToEntity($merchant);
+                $list[] = $merchant->toArray(true);
             }
 
             $list['total'] = $pages->total();
@@ -106,5 +121,18 @@ class MerchantsRepository
         } catch (Exception $e){
             throw new Exception("Error in list all merchants - " . $e->getMessage(), 400);
         }
+    }
+
+    public function modelToEntity(Merchants $merchantsModel)
+    {
+        return new MerchantEntity(
+            $merchantsModel->uuid,
+            $merchantsModel->name,
+            $merchantsModel->telephone,
+            $merchantsModel->address,
+            $merchantsModel->are_open,
+            $merchantsModel->updated_at,
+            $merchantsModel->created_at,
+        );
     }
 }

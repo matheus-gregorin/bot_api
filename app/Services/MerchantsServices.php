@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Entitys\MerchantEntity;
 use App\Repository\MerchantsRepository;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
@@ -24,10 +26,17 @@ class MerchantsServices
             throw new Exception("Merchants exists", 404);
         }
 
-        $data = ["uuid" => Uuid::uuid4()->toString()] + $data;
-        $data['are_open'] = false;
+        $merchant = new MerchantEntity(
+            Uuid::uuid4()->toString(),
+            $data["name"],
+            $data["telephone"],
+            $data['address'],
+            false,
+            Carbon::now(),
+            Carbon::now()
+        );
 
-        return $this->merchantsRepository->create($data);
+        return $this->merchantsRepository->create($merchant->toArray(false));
     }
 
     public function updated(string $uuid, array $data)
@@ -40,20 +49,20 @@ class MerchantsServices
             
             ///name
             if(!empty($data['name'])){
-                if($data['name'] != $merchant->name){
-                    $merchant->name = $data['name'];
+                if($data['name'] != $merchant->getName()){
+                    $merchant->setName($data['name']);
                 }
             }
 
             //telephone
             if(!empty($data['telephone'])){
-                $merchant->telephone = $data['telephone'];
+                $merchant->setTelephone($data['telephone']);
             }
     
             //address
             if(!empty($data['address'])){
                 
-                $address = $merchant->address;
+                $address = [];
 
                 if(!empty($data['address']['street'])){
                     $address['street'] = $data['address']['street'];
@@ -71,16 +80,15 @@ class MerchantsServices
                     $address['city'] = $data['address']['city'];
                 }
 
-                $merchant->address = $address;
-
+                $merchant->setAddress($address);
             }
 
             //are open
             if(isset($data['are_open'])){
-                $merchant->are_open = $data['are_open'];
+                $merchant->setAreOpen($data['are_open']);
             }
 
-            return $merchant->save();
+            return $this->merchantsRepository->update($merchant->getUuid(), $merchant->toArray(false));
         }
 
         throw new Exception("merchant not found", 401);
@@ -92,7 +100,7 @@ class MerchantsServices
 
         $merchant = $this->merchantsRepository->getByUuid($uuid);
         if($merchant){
-            return $this->merchantsRepository->deleted($merchant->uuid);
+            return $this->merchantsRepository->deleted($merchant->getUuid());
         }
 
         throw new Exception("Merchant not found", 401);
@@ -104,8 +112,7 @@ class MerchantsServices
 
         $merchant = $this->merchantsRepository->getByUuid($uuid);
         if($merchant){
-            unset($merchant['password']);
-            return $merchant;
+            return $merchant->toArray(true);
         }
 
         throw new Exception("merchant not found", 404);
@@ -115,8 +122,7 @@ class MerchantsServices
     {
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        Log::info("", ['data' => $data]);
-
+        Log::info("Merchants", ['data' => $data]);
         return $this->merchantsRepository->listAll($data);
     }
 
@@ -128,9 +134,9 @@ class MerchantsServices
 
         $merchant = $this->merchantsRepository->getByUuid($uuid);
         if($merchant){
-            if($merchant->are_open != $setOn){
-                $merchant->are_open = $setOn;
-                return $merchant->save();
+            if($merchant->getAreOpen() != $setOn){
+                $merchant->setAreOpen($setOn);
+                return $this->merchantsRepository->update($merchant->getUuid(), $merchant->toArray(false));
             }
             throw new Exception("merchant is already updated", 404);
         }

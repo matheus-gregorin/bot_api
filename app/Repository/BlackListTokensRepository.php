@@ -36,6 +36,21 @@ class BlackListTokensRepository
         }
     }
 
+    public function setDisable(string $token)
+    {
+        try {
+
+            $tokenData = $this->blacklistTokens->where('token_jwt', $token)->first();
+            if(!empty($tokenData)){
+                $tokenData->active = false;
+                $tokenData->save();
+            }
+
+        } catch (Exception $e) {
+            throw new Exception("Error in get token disable - " . $e->getMessage(), 500);
+        }
+    }
+
     public function delete(string $token)
     {
         // todo

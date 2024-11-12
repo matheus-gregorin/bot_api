@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entitys\ClientEntity;
 use App\Models\Clients;
 use Exception;
 
@@ -25,11 +26,16 @@ class ClientsRepository
         }
     }
 
-    public function get(string $name)
+    public function getByEmail(string $email)
     {
         try{
 
-            return $this->clientsModel->where('name', $name)->get()->first();
+            $client = $this->clientsModel->where('email', $email)->first();
+            if(!empty($client)){
+                return $this->modelToEntity($client);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get Client - " . $e->getMessage(), 400);
@@ -40,10 +46,26 @@ class ClientsRepository
     {
         try{
 
-            return $this->clientsModel->where('uuid', $uuid)->get()->first();
+            $client = $this->clientsModel->where('uuid', $uuid)->first();
+            if(!empty($client)){
+                return $this->modelToEntity($client);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get client - " . $e->getMessage(), 400);
+        }
+    }
+
+    public function update(string $uuid, array $data)
+    {
+        try{
+
+            $this->clientsModel->where('uuid', $uuid)->update($data);
+            
+        } catch (Exception $e){
+            throw new Exception("Error in updated client, uuid: " . $uuid, 400);
         }
     }
 
@@ -83,24 +105,14 @@ class ClientsRepository
     
             if(!empty($data['paginator'])){
                 $pages = $query->paginate($data['paginator']);
+            } else {
+                throw new Exception("Paginator not found");
             }
 
             foreach($pages as $client){
 
-                $createAt = $client->created_at;
-                $updatedAt = $client->updated_at;
-
-                $list[] = [
-                    'uuid' => $client->uuid,
-                    'name' => $client->name,
-                    'date_of_birth' => $client->date_of_birth,
-                    'number' => $client->number,
-                    'email' => $client->email,
-                    'address' => $client->address,
-                    'activate' => $client->activate,
-                    'created_at' => $createAt->toDateTimeString(),
-                    'updated_at' => $updatedAt->toDateTimeString(),
-                ];
+                $client = $this->modelToEntity($client);
+                $list[] = $client->toArray(true);
             }
 
             $list['total'] = $pages->total();
@@ -110,5 +122,20 @@ class ClientsRepository
         } catch (Exception $e){
             throw new Exception("Error in list all clients - " . $e->getMessage(), 400);
         }
+    }
+
+    public function modelToEntity(Clients $client)
+    {
+        return new ClientEntity(
+            $client->uuid,
+            $client->name,
+            $client->date_of_birth,
+            $client->number,
+            $client->email,
+            $client->address,
+            $client->activate,
+            $client->updated_at,
+            $client->created_at
+        );
     }
 }

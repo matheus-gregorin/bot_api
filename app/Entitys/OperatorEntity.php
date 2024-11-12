@@ -187,6 +187,11 @@ class OperatorEntity
 
     public function toArray(bool $returnDates = false)
     {
+        //Inserir no banco: $returnDates = false
+        //Listagem de operadores: $returnDates = true
+        //Não precisa mandar essas informações de crated_at e updated_at para o banco
+        //pois ele mesmo se auto-gerência.
+
         $data = [
             'uuid' => $this->getUuid(),
             'name'=> $this->getName(),
@@ -200,6 +205,7 @@ class OperatorEntity
             $data['created_at'] = $this->getCreated_at();
             $data['updated_at'] = $this->getUpdated_at();
         }
+
         return $data;
     }
 }
