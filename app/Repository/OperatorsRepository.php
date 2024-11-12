@@ -94,7 +94,7 @@ class OperatorsRepository
     {
         try{
 
-            $this->operatorModel->where('uuid', $uuid)->update($data);
+            return $this->operatorModel->where('uuid', $uuid)->update($data);
             
         } catch (Exception $e){
             throw new Exception("Error in updated operator, uuid: " . $uuid, 400);

@@ -62,7 +62,7 @@ class ClientsRepository
     {
         try{
 
-            $this->clientsModel->where('uuid', $uuid)->update($data);
+            return $this->clientsModel->where('uuid', $uuid)->update($data);
             
         } catch (Exception $e){
             throw new Exception("Error in updated client, uuid: " . $uuid, 400);

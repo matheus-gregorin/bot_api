@@ -91,7 +91,13 @@ class ClientsServices
                 }
             }
 
-            return $this->clientsRepository->update($client->getUuid(), $client->toArray(false));
+            $updated = $this->clientsRepository->update($client->getUuid(), $client->toArray(false));
+            if($updated){
+                return $client->toArray(true);
+            }
+
+            throw new Exception("client can not updated", 500);
+
         }
 
         throw new Exception("client not found", 401);

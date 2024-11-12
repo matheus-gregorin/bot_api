@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entitys\ListOfPurchaseEntity;
 use App\Models\ListOfPurchase;
 use Exception;
 
@@ -13,11 +14,11 @@ class ListOfPurchaseRepository
         $this->listOfPurchaseModel = $listOfPurchaseModel;
     }
 
-    public function create(ListOfPurchase $listOfPurchaseModel)
+    public function create(array $data)
     {
         try{
 
-            return $listOfPurchaseModel->save();
+            return $this->listOfPurchaseModel->create($data);
 
         } catch (Exception $e){
             throw new Exception("Error in create operator - " . $e->getMessage(), 400);
@@ -28,7 +29,13 @@ class ListOfPurchaseRepository
     {
         try{
 
-            return $this->listOfPurchaseModel->where('uuid', $uuid)->get()->first();
+            $list = $this->listOfPurchaseModel->where('uuid', $uuid)->first();
+            if(!empty($list)){
+                return $this->modelToEntity($list);
+            }
+
+            return false;
+            
 
         } catch (Exception $e){
             throw new Exception("Error in get by uuid list - " . $e->getMessage(), 400);
@@ -55,26 +62,13 @@ class ListOfPurchaseRepository
             if(!empty($data['paginator'])){
                 $pages = $query->paginate($data['paginator']);
             } else {
-                return $this->listOfPurchaseModel->all();
+                throw new Exception("Paginator not found", 400);
             }
 
             foreach ($pages as $listOfPurchase){
 
-                $createAt = $listOfPurchase->created_at;
-                $updatedAt = $listOfPurchase->updated_at;
-
-                $list[] = [
-                    'uuid' => $listOfPurchase->uuid,
-                    'client_uuid' => $listOfPurchase->client_uuid,
-                    'items' => $listOfPurchase->items,
-                    'value' => $listOfPurchase->value,
-                    'date_schedule' => $listOfPurchase->date_schedule,
-                    'form_purchase' => $listOfPurchase->form_purchase,
-                    'address_send' => $listOfPurchase->address_send,
-                    'status'=> $listOfPurchase->status,
-                    'created_at' => $createAt->toDateTimeString(),
-                    'updated_at' => $updatedAt->toDateTimeString(),
-                ];
+                $listEntity = $this->modelToEntity($listOfPurchase);
+                $list[] = $listEntity->toArray(true);
             }
 
             return $list;
@@ -102,7 +96,7 @@ class ListOfPurchaseRepository
             return $this->listOfPurchaseModel->where('client_uuid', $uuid)->get();
             
         } catch (Exception $e){
-            throw new Exception("Error in delete list of purchase, uuid: " . $uuid, 400);
+            throw new Exception("Error in get all list of purchase by client, uuid: " . $uuid, 400);
         }
     }
 
@@ -129,10 +123,30 @@ class ListOfPurchaseRepository
     {
         try{
 
-            return $this->listOfPurchaseModel->where('uuid', $uuid)->get()->first();
+            $list = $this->listOfPurchaseModel->where('uuid', $uuid)->get()->first();
+            if(!empty($list)){
+                return $this->modelToEntity($list);
+            }
+
+            return false;
 
         } catch (Exception $e){
             throw new Exception("Error in get list - " . $e->getMessage());
         }
+    }
+
+    public function modelToEntity(ListOfPurchase $listOfPurchase)
+    {
+        return new ListOfPurchaseEntity(
+            $listOfPurchase->uuid,
+            $listOfPurchase->client_uuid,
+            $listOfPurchase->items,
+            $listOfPurchase->form_purchase,
+            $listOfPurchase->address_send,
+            $listOfPurchase->date_schedule,
+            $listOfPurchase->status,
+            $listOfPurchase->updated_at,
+            $listOfPurchase->created_at,
+        );
     }
 }

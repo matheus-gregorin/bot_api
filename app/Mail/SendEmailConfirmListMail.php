@@ -15,8 +15,8 @@ class SendEmailConfirmListMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private ListOfPurchase $listOfPurchase;
-    private Clients $client;
+    private array $listOfPurchase;
+    private array $client;
     private array $items;
 
     /**
@@ -24,7 +24,7 @@ class SendEmailConfirmListMail extends Mailable
      *
      * @return void
      */
-    public function __construct( ListOfPurchase $listOfPurchase, Clients $client, array $items)
+    public function __construct( array $listOfPurchase, array $client, array $items)
     {
         $this->listOfPurchase = $listOfPurchase;
         $this->client = $client;

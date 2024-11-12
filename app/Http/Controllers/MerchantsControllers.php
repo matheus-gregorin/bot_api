@@ -36,10 +36,11 @@ class MerchantsControllers extends Controller
     {
         try{
 
-            $this->merchantsServices->updated($uuid, $request->all());
+            $merchant = $this->merchantsServices->updated($uuid, $request->all());
 
             return response()->json([
                 'success' => true,
+                'merchant' => $merchant
             ]);
 
         } catch (Exception $e){

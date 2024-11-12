@@ -13,13 +13,13 @@ class SendWelcomeEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private Operators $operator;
+    private array $operator;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(Operators $operator)
+    public function __construct(array $operator)
     {
         $this->operator = $operator;
     }
@@ -32,7 +32,7 @@ class SendWelcomeEmail extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: "Seja muito bem vindo ao BOTT " . $this->operator->name,
+            subject: "Seja muito bem vindo ao BOTT " . $this->operator['name'],
         );
     }
 

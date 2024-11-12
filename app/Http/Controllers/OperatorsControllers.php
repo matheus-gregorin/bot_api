@@ -81,10 +81,11 @@ class OperatorsControllers extends Controller
     {
         try{
 
-            $this->operatorsServices->updated($uuid, $request->all());
+            $operator = $this->operatorsServices->updated($uuid, $request->all());
 
             return response()->json([
                 'success' => true,
+                'operator' => $operator
             ]);
 
         } catch (Exception $e){

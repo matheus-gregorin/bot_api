@@ -88,7 +88,12 @@ class MerchantsServices
                 $merchant->setAreOpen($data['are_open']);
             }
 
-            return $this->merchantsRepository->update($merchant->getUuid(), $merchant->toArray(false));
+            $update = $this->merchantsRepository->update($merchant->getUuid(), $merchant->toArray(false));
+            if($update){
+                return $merchant->toArray(true);
+            }
+
+            throw new Exception("merchant can not updated", 500);
         }
 
         throw new Exception("merchant not found", 401);

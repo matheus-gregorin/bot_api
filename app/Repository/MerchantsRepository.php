@@ -29,7 +29,7 @@ class MerchantsRepository
     {
         try{
 
-            $this->merchantsModel->where('uuid', $uuid)->update($data);
+            return $this->merchantsModel->where('uuid', $uuid)->update($data);
             
         } catch (Exception $e){
             throw new Exception("Error in updated merchant, uuid: " . $uuid, 400);

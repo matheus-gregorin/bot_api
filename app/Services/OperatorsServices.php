@@ -128,7 +128,13 @@ class OperatorsServices
                 $operator->setEmail($data['email']);
             }
 
-            return $this->operatorsRepository->update($operator->getUuid(), $operator->toArray(false));
+            $updated = $this->operatorsRepository->update($operator->getUuid(), $operator->toArray(false));
+            if($updated){
+                return $operator->toArray(true);
+            }
+
+            throw new Exception("Operator can not updated", 500);
+
         }
 
         throw new Exception("Operator not found", 401);

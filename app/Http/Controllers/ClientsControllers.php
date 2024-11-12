@@ -36,10 +36,11 @@ class ClientsControllers extends Controller
     {
         try{
 
-            $this->clientsServices->updated($uuid, $request->all());
+            $client = $this->clientsServices->updated($uuid, $request->all());
 
             return response()->json([
                 'success' => true,
+                'client' => $client
             ]);
 
         } catch (Exception $e){

@@ -71,6 +71,7 @@ class ItemsServices
             if($update){
                 return $item->toArray(true);
             }
+
             throw new Exception("Item can not update", 500);
 
         }

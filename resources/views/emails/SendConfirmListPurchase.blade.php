@@ -14,7 +14,7 @@
         </tr>
         <tr>
             <td style="padding: 20px;">
-                <p>Olá, {{ $client->name }},</p>
+                <p>Olá, {{ $client['name'] }},</p>
                 <p>Obrigado pela sua compra! Seu pedido foi confirmado com sucesso.</p>
                 <h2>Detalhes do Pedido:</h2>
                 <table width="100%" cellpadding="5" cellspacing="0" style="border-collapse: collapse; margin-bottom: 20px;">
@@ -32,7 +32,7 @@
                         </tr>
                     @endforeach
                 </table>
-                <p><strong>Total:</strong> R$ {{ $list->value }} </p>
+                <p><strong>Total:</strong> R$ {{ $list['value'] }} </p>
                 <p style="margin-top: 30px;">Atenciosamente,<br>Equipe BOTT</p>
             </td>
         </tr>

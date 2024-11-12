@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Entitys\ListOfPurchaseEntity;
 use App\Enums\Status;
 use App\Jobs\SendEmailConfirmList;
 use App\Jobs\sendEmailListPurchase;
@@ -12,6 +13,7 @@ use App\Repository\ClientsRepository;
 use App\Repository\ItemsRepository;
 use App\Repository\ListOfPurchaseRepository;
 use App\Repository\MerchantsRepository;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Ramsey\Uuid\Uuid;
@@ -40,31 +42,37 @@ class ListOfPurchaseServices
     {
         $this->validation($data['client_uuid'], $data['items']);
 
-        $listOfPurchase = new ListOfPurchase();
-        $listOfPurchase->uuid = Uuid::uuid4()->toString();
-        $listOfPurchase->client_uuid = $data['client_uuid'];
-        $listOfPurchase->items = $data['items'];
-        $listOfPurchase->form_purchase = $data['form_purchase'];
-        $listOfPurchase->address_send = $data['address_send'];
-        $listOfPurchase->date_schedule = $data['date_schedule'];
-        $listOfPurchase->status = Status::$LIST_PURCHASE_STATUS_AWAIT;
+        $listOfPurchase = new ListOfPurchaseEntity(
+            Uuid::uuid4()->toString(),
+            $data['client_uuid'],
+            $data['items'],
+            $data['form_purchase'],
+            $data['address_send'],
+            $data['date_schedule'],
+            Status::$LIST_PURCHASE_STATUS_AWAIT,
+            Carbon::now(),
+            Carbon::now()
+        );
 
-        $value = $this->calculateValueAndUpdateItem(Status::$CASE_CREATE, $data['items'], null);
-        $listOfPurchase->value = $value;
+        $value = $this->calculateValueAndUpdateItem(Status::$CASE_CREATE, $listOfPurchase->getItems(), null);
+        $listOfPurchase->setValue($value);
 
-        $list = $this->listOfPurchaseRepository->create($listOfPurchase);
+        $list = $this->listOfPurchaseRepository->create($listOfPurchase->toArray(false));
 
         try{
             // Dispatch menssenger
-            (new OrderReceivedEvent("Create list " . $listOfPurchase->uuid))->publish();
-            $email = $this->sendEmailOfConfirmPurchase($listOfPurchase, $data['client_uuid']);
-            Log::info("Send email and message", ['email' => $email]);
+            (new OrderReceivedEvent("Create list " . $listOfPurchase->getUuid()))->publish();
+            $email = $this->sendEmailOfConfirmPurchase($listOfPurchase, $listOfPurchase->getClientUuid());
+            Log::info("Send email and message", []);
     
         } catch (Exception $e){
             Log::info("Error to send email of List", ['message' => $e->getMessage()]);
         }
 
-        return $listOfPurchase;
+        if($list){
+            return $listOfPurchase->toArray(true);
+        }
+        throw new Exception("List not create", 500);
 
     }
 
@@ -158,11 +166,11 @@ class ListOfPurchaseServices
             switch ($case) {
                 case Status::$CASE_CREATE:
 
-                    if($qtd > $item->qtd_item){
+                    if($qtd > $item->getQtdItem()){
                         throw new Exception("quantity of items requested is greater than allowed", 400);
                     }
-                    $totalValue += $item->value * $qtd;
-                    $this->itemsRepository->removeQtd($item->uuid, $qtd);
+                    $totalValue += $item->getValue() * $qtd;
+                    $this->itemsRepository->removeQtd($item->getUuid(), $qtd);
                     break;
 
                 case Status::$CASE_UPDATE:
@@ -172,22 +180,22 @@ class ListOfPurchaseServices
 
                         if($qtd > 0 && $qtd > $itemsCurrent[$uuid]){
 
-                            $totalValue += $item->value * $qtd;
+                            $totalValue += $item->getValue() * $qtd;
                             $qtdDif = $qtd - $itemsCurrent[$uuid];
-                            $this->itemsRepository->removeQtd($item->uuid, $qtdDif);
+                            $this->itemsRepository->removeQtd($item->getUuid(), $qtdDif);
 
                         } else {
 
-                            $totalValue += $item->value * $qtd;
+                            $totalValue += $item->getValue() * $qtd;
                             $qtdDif = $itemsCurrent[$uuid] - $qtd;
-                            $this->itemsRepository->addQtd($item->uuid, $qtdDif);
+                            $this->itemsRepository->addQtd($item->getUuid(), $qtdDif);
 
                         }
 
                     } else {
 
-                        $totalValue += $item->value * $qtd;
-                        $this->itemsRepository->removeQtd($item->uuid, $qtd);
+                        $totalValue += $item->getValue() * $qtd;
+                        $this->itemsRepository->removeQtd($item->getUuid(), $qtd);
 
                     }
                     break;
@@ -218,7 +226,7 @@ class ListOfPurchaseServices
         throw new Exception("List not found");
     }
 
-    public function sendEmailOfConfirmPurchase(ListOfPurchase $listOfPurchase, string $uuidClient)
+    public function sendEmailOfConfirmPurchase(ListOfPurchaseEntity $listOfPurchase, string $uuidClient)
     {
         try {
 
@@ -226,17 +234,17 @@ class ListOfPurchaseServices
             if(!empty($client)){
 
                 $data = [];
-                foreach($listOfPurchase->items as $uuidItem => $qtd){
+                foreach($listOfPurchase->getItems() as $uuidItem => $qtd){
                     $item = $this->itemsRepository->getBytUuid($uuidItem);
                     $data[] = [
-                        'name' => $item->name_item,
-                        'value' => $item->value,
+                        'name' => $item->getNameItem(),
+                        'value' => $item->getValue(),
                         'qtd' => $qtd
                     ];
                 }
 
                 //Job
-                return SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
+                SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
             }
 
         }
