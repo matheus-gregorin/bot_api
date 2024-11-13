@@ -50,6 +50,7 @@ class ListOfPurchaseServices
             $data['address_send'],
             $data['date_schedule'],
             Status::$LIST_PURCHASE_STATUS_AWAIT,
+            0,
             Carbon::now(),
             Carbon::now()
         );
@@ -82,7 +83,13 @@ class ListOfPurchaseServices
         if(!empty($list)){
             $this->validation(null, $data[ 'items']);
             $value = $this->calculateValueAndUpdateItem(Status::$CASE_UPDATE, $data['items'], $list);
-            return $this->listOfPurchaseRepository->updateListItems($list->uuid, $value, $data['items']);
+            $listUpdated = $this->listOfPurchaseRepository->updateListItems($list->getUuid(), $value, $data['items']);
+            if($listUpdated){
+                return $listUpdated;
+            }
+
+            throw new Exception("error in updated items", 500);
+
         }
 
         throw new Exception("List not found", 400);
@@ -94,15 +101,15 @@ class ListOfPurchaseServices
         if(!empty($list)){
             
             if(!empty($data['date_schedule'])){
-                $list->date_schedule = $data['date_schedule'];
+                $list->setDateSchedule($data['date_schedule']);
             }
 
             if(!empty($data['form_purchase'])){
-                $list->form_purchase = $data['form_purchase'];
+                $list->setFormPurchase($data['form_purchase']);
             }
 
             if(!empty($data['address_send'])){
-                $address = $list->address_send;
+                $address = $list->getAddressSend();
 
                 if(!empty($data['address_send']['street'])){
                     $address['street'] = $data['address_send']['street'];
@@ -117,10 +124,15 @@ class ListOfPurchaseServices
                     $address['city'] = $data['address_send']['city'];
                 }
 
-                $list->address_send = $address;
+                $list->setAddressSend($address);
             }
 
-            $this->listOfPurchaseRepository->update($list);
+            $update = $this->listOfPurchaseRepository->update($list->getUuid(), $list->toArray(false));
+            if($update){
+                return $list->toArray(true);
+            }
+
+            throw new Exception("List can not updated", 400);
         }
 
         throw new Exception("List not found", 400);
@@ -132,8 +144,8 @@ class ListOfPurchaseServices
 
         $list = $this->listOfPurchaseRepository->getByUuid($listUuid);
         if(!empty($list)){
-            $this->calculateValueAndUpdateItem(Status::$CASE_DELETE, $list->items, $list);
-            return $this->listOfPurchaseRepository->deleted($list->uuid);
+            $this->calculateValueAndUpdateItem(Status::$CASE_DELETE, $list->getItems(), $list);
+            return $this->listOfPurchaseRepository->deleted($list->getUuid());
         }
 
         throw new Exception("List not found", 400);
@@ -158,7 +170,7 @@ class ListOfPurchaseServices
         }
     }
 
-    public function calculateValueAndUpdateItem(string $case, array $items, ?ListOfPurchase $list = null)
+    public function calculateValueAndUpdateItem(string $case, array $items, ?ListOfPurchaseEntity $list = null)
     {
         $totalValue = 0;
         foreach ($items as $uuid => $qtd){
@@ -175,10 +187,14 @@ class ListOfPurchaseServices
 
                 case Status::$CASE_UPDATE:
 
-                    $itemsCurrent = $list->items;
+                    $itemsCurrent = $list->getItems();
                     if(array_key_exists($uuid, $itemsCurrent)){
 
                         if($qtd > 0 && $qtd > $itemsCurrent[$uuid]){
+
+                            if($qtd > $item->getQtdItem()){
+                                throw new Exception("quantity of items requested is greater than allowed", 400);
+                            }
 
                             $totalValue += $item->getValue() * $qtd;
                             $qtdDif = $qtd - $itemsCurrent[$uuid];
@@ -193,6 +209,10 @@ class ListOfPurchaseServices
                         }
 
                     } else {
+
+                        if($qtd > $item->getQtdItem()){
+                            throw new Exception("quantity of items requested is greater than allowed", 400);
+                        }
 
                         $totalValue += $item->getValue() * $qtd;
                         $this->itemsRepository->removeQtd($item->getUuid(), $qtd);
@@ -220,7 +240,7 @@ class ListOfPurchaseServices
 
         $list = $this->listOfPurchaseRepository->getBytUuid($uuid);
         if($list){
-            return $list;
+            return $list->toArray(true);
         }
 
         throw new Exception("List not found");

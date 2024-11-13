@@ -43,7 +43,7 @@ class OperatorsControllers extends Controller
             return response()->json([
                 'success' => true, 
                 'token' => $token,
-                'expire_in' => 3
+                'expire_in' => 12
             ]);
 
         } catch (Exception $e){

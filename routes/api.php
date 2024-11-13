@@ -68,48 +68,56 @@ Route::group(['prefix' => 'list', 'middleware' => 'jwt'], function(){
     Route::get('/get/{uuid}', [ListOfPurchaseControllers::class, 'get']);
 });
 
-// ARQUIVO NA RAIZ CHAMADO INFO_GEMINI com todos os recursos
-Route::group(['prefix' => 'webhook'], function(){
-    Route::post('/send', function(Request $request){
-
-        $data = $request->all();
-
-        //$name = $data['ProfileName'];
-        $number = $data['From'];
-        $message = $data['Body'];
-
-        $chat = Gemini::startChat();
-        $response = $chat->sendMessage($message);
-        
-        $sid = env('ID_TWILLIO');
-        $token = env('TOKEN_TWILLIO');
-        $client = new Client($sid, $token); //Twillio
-
-        try{
-
-        //Use the Client to make requests to the Twilio REST API
-        //Use o cliente para fazer solicitações à API REST da Twilio
-        $client->messages->create(
-            //The number you'd like to send the message to
-            //O número para o qual você gostaria de enviar a mensagem
-            $number,
-            [
-                //A Twilio phone number you purchased at https://console.twilio.com
-                //Um número de telefone da Twilio que você comprou em https://console.twilio.com
-                'from' => 'whatsapp:+14155238886',
-
-                //The body of the text message you'd like to send
-                //O corpo da mensagem de texto que você deseja gostaria de enviar
-                'body' => $response
-            ] 
-        );
-
-        //return $response;
-
-        } catch (Exception $e){
-            return $e->getMessage();
-        }
-
-    });
-
+// Rota de fallback para rotas não encontradas
+Route::fallback(function () {
+    return response()->json([
+        'success' => false,
+        'message' => 'Route not found'
+    ], 404);
 });
+
+// ARQUIVO NA RAIZ CHAMADO INFO_GEMINI com todos os recursos
+// Route::group(['prefix' => 'webhook'], function(){
+//     Route::post('/send', function(Request $request){
+
+//         $data = $request->all();
+
+//         //$name = $data['ProfileName'];
+//         $number = $data['From'];
+//         $message = $data['Body'];
+
+//         $chat = Gemini::startChat();
+//         $response = $chat->sendMessage($message);
+        
+//         $sid = env('ID_TWILLIO');
+//         $token = env('TOKEN_TWILLIO');
+//         $client = new Client($sid, $token); //Twillio
+
+//         try{
+
+//         //Use the Client to make requests to the Twilio REST API
+//         //Use o cliente para fazer solicitações à API REST da Twilio
+//         $client->messages->create(
+//             //The number you'd like to send the message to
+//             //O número para o qual você gostaria de enviar a mensagem
+//             $number,
+//             [
+//                 //A Twilio phone number you purchased at https://console.twilio.com
+//                 //Um número de telefone da Twilio que você comprou em https://console.twilio.com
+//                 'from' => 'whatsapp:+14155238886',
+
+//                 //The body of the text message you'd like to send
+//                 //O corpo da mensagem de texto que você deseja gostaria de enviar
+//                 'body' => $response
+//             ] 
+//         );
+
+//         //return $response;
+
+//         } catch (Exception $e){
+//             return $e->getMessage();
+//         }
+
+//     });
+
+// });

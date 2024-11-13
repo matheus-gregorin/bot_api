@@ -37,10 +37,11 @@ class ListOfPurchaseControllers extends Controller
     {
         try{
 
-            $updated = $this->listOfPurchaseServices->updateItems($listUuid, $request->all());
+            $list = $this->listOfPurchaseServices->updateItems($listUuid, $request->all());
 
             return response()->json([
-                'success' => $updated
+                'success' => true,
+                'list' => $list
             ]);
 
         } catch (Exception $e){

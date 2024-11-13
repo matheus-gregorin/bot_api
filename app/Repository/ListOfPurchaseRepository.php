@@ -42,17 +42,6 @@ class ListOfPurchaseRepository
         }
     }
 
-    public function update(ListOfPurchase $list)
-    {
-        try{
-
-            $list->save();
-
-        } catch (Exception $e){
-            throw new Exception("Error in updated list - " . $e->getMessage(), 400);
-        }
-    }
-
     public function getAll(array $data)
     {
         try{
@@ -104,11 +93,17 @@ class ListOfPurchaseRepository
     {
         try{
 
-            $listOfPurchase = $this->listOfPurchaseModel->where("uuid", $uuid)->get()->first();
-            if($listOfPurchase){
-                $listOfPurchase->value = $valueList;
-                $listOfPurchase->items = $itemsList;
-                return $listOfPurchase->save();
+            $listOfPurchaseModel = $this->listOfPurchaseModel->where("uuid", $uuid)->first();
+            if($listOfPurchaseModel){
+                $listOfPurchase = $this->modelToEntity($listOfPurchaseModel);
+                $listOfPurchase->setValue($valueList);
+                $listOfPurchase->setItems($itemsList);
+                $update = $this->update($listOfPurchase->getUuid(), $listOfPurchase->toArray(false));
+                if($update){
+                    return $listOfPurchase->toArray(true);
+                }
+
+                return false;
             }
 
             throw new Exception("List not found");
@@ -118,12 +113,22 @@ class ListOfPurchaseRepository
         }
     }
 
+    public function update(string $uuid, array $data)
+    {
+        try{
+
+            return $this->listOfPurchaseModel->where('uuid', $uuid)->update($data);
+            
+        } catch (Exception $e){
+            throw new Exception("Error in updated list of purchase, uuid: " . $uuid, 400);
+        }
+    }
 
     public function getBytUuid(string $uuid)
     {
         try{
 
-            $list = $this->listOfPurchaseModel->where('uuid', $uuid)->get()->first();
+            $list = $this->listOfPurchaseModel->where('uuid', $uuid)->first();
             if(!empty($list)){
                 return $this->modelToEntity($list);
             }
@@ -145,6 +150,7 @@ class ListOfPurchaseRepository
             $listOfPurchase->address_send,
             $listOfPurchase->date_schedule,
             $listOfPurchase->status,
+            $listOfPurchase->value,
             $listOfPurchase->updated_at,
             $listOfPurchase->created_at,
         );

@@ -76,7 +76,7 @@ class OperatorsServices
         if($operator && password_verify($password, $operator->getPassword())){
 
             $token = JWT::encode(
-                ['email' => $operator->getEmail(), 'permissions' => $operator->getPermissions(), 'exp' => now()->addHours(3)->getTimestamp()],
+                ['email' => $operator->getEmail(), 'permissions' => $operator->getPermissions(), 'exp' => now()->addHours(12)->getTimestamp()],
                 env('SECRET_JWT') ?? "X",
                 'HS256'
             );

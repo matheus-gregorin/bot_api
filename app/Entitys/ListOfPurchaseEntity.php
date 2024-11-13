@@ -32,6 +32,7 @@ class ListOfPurchaseEntity
         array $addressSend,
         string $dateSchedule,
         string $status,
+        float $value,
         string $updatedAt,
         string $createdAt
     ) 
@@ -43,6 +44,7 @@ class ListOfPurchaseEntity
         $this->addressSend = $addressSend;
         $this->dateSchedule = $dateSchedule;
         $this->status = $status;
+        $this->value = $value;
         $this->updatedAt = $updatedAt;
         $this->createdAt = $createdAt;
     }
