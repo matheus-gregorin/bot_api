@@ -87,7 +87,9 @@ class OperatorsServices
 
             Log::info('Login Success', []);
 
-            return $token;
+            $operator->setPassword('');
+
+            return ['token' => $token, 'operator' => $operator->toArray(true)];
 
         }
 
