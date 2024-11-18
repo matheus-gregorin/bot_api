@@ -6,7 +6,6 @@ services:
     ports:
       - "8000:8000"
       - "9001:9001"
-    #network_mode: "host"
     volumes:
       - .:/var/www/html
       - app_data:/var/www/html/public/uploads
@@ -30,6 +29,19 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: "bott@gmail.com"
       RABBITMQ_DEFAULT_PASS: "bottRabbit123456"
+    
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins-bott
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      JENKINS_USER: admin  # Defina o nome do usuário administrador
+      JENKINS_PASS: password123  # Defina a senha do usuário administrador
+    volumes:
+      - app_data:/var/jenkins_home
+    restart: always
 
 volumes:
   app_data:
