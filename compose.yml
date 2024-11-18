@@ -32,6 +32,7 @@ services:
     
   jenkins:
     image: jenkins/jenkins:lts
+    user: "1000:1000"
     container_name: jenkins-bott
     ports:
       - "8080:8080"
