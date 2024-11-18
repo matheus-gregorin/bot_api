@@ -30,19 +30,19 @@ services:
       RABBITMQ_DEFAULT_USER: "bott@gmail.com"
       RABBITMQ_DEFAULT_PASS: "bottRabbit123456"
     
-  jenkins:
-    image: jenkins/jenkins:lts
-    user: "1000:1000"
-    container_name: jenkins-bott
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-    environment:
-      JENKINS_USER: admin  # Defina o nome do usuário administrador
-      JENKINS_PASS: password123  # Defina a senha do usuário administrador
-    volumes:
-      - app_data:/var/jenkins_home
-    restart: always
+  # jenkins:
+  #   image: jenkins/jenkins:lts
+  #   user: "1000:1000"
+  #   container_name: jenkins-bott
+  #   ports:
+  #     - "8080:8080"
+  #     - "50000:50000"
+  #   environment:
+  #     JENKINS_USER: admin  # Defina o nome do usuário administrador
+  #     JENKINS_PASS: password123  # Defina a senha do usuário administrador
+  #   volumes:
+  #     - app_data:/var/jenkins_home
+  #   restart: always
 
 volumes:
   app_data:
