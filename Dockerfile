@@ -56,5 +56,7 @@ RUN /var/www/html/scripts/init-queue.sh
 # Rodando o composer install
 RUN composer install
 
+RUN php artisan key:generate
+
 # Comando para iniciar o servidor Laravel
 CMD ["/var/www/html/scripts/init-run.sh"]
