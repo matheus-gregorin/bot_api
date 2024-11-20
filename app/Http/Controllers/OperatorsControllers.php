@@ -148,6 +148,7 @@ class OperatorsControllers extends Controller
             //Por isso está sendo passado para service
             
             $operator = $this->operatorsServices->get($uuid, $request->all());
+            unset($operator['password']);
 
             return response()->json([
                 'success' => true,
