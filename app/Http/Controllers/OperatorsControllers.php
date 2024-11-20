@@ -39,12 +39,11 @@ class OperatorsControllers extends Controller
         try{
 
             $data = $this->operatorsServices->login($request->get('email'), $request->get('password'));
-            unset($data['operator']['password']);
 
             return response()->json([
                 'success' => true, 
                 'token' => $data['token'],
-                'operator' => $data['operator'],
+                'name' => $data['name'],
                 'expire_in' => 12
             ]);
 

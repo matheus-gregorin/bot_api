@@ -89,7 +89,7 @@ class OperatorsServices
 
             $operator->setPassword('');
 
-            return ['token' => $token, 'operator' => $operator->toArray(true)];
+            return ['token' => $token, 'name' => $operator->getName()];
 
         }
 
