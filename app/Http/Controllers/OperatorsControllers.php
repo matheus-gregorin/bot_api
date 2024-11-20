@@ -43,7 +43,7 @@ class OperatorsControllers extends Controller
             return response()->json([
                 'success' => true, 
                 'token' => $data['token'],
-                'name' => $data['name'],
+                'uuid' => $data['uuid'],
                 'expire_in' => 12
             ]);
 

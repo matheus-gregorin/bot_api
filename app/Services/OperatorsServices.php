@@ -89,7 +89,7 @@ class OperatorsServices
 
             $operator->setPassword('');
 
-            return ['token' => $token, 'name' => $operator->getName()];
+            return ['token' => $token, 'uuid' => $operator->getUuid()];
 
         }
 
