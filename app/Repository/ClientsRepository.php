@@ -102,6 +102,10 @@ class ClientsRepository
                     $query->where('activate', true);
                 }
             }
+
+            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
+                $query->orderBy('created_at', 'desc');
+            }
     
             if(!empty($data['paginator'])){
                 $pages = $query->paginate($data['paginator']);
