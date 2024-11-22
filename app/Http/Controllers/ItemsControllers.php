@@ -70,6 +70,28 @@ class ItemsControllers extends Controller
         }
     }
 
+    public function all(Request $request)
+    {
+        try{
+
+            $items = $this->itemsServices->all( $request->all());
+            $total = $items['total'] ?? 0;
+            unset($items['total']);
+
+            return response()->json([
+                'success' => true,
+                'items' => $items,
+                'total' => $total
+            ]);
+
+        } catch (Exception $e){
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
+
     public function AllByMerchant(string $merchantUuid, Request $request)
     {
         try{

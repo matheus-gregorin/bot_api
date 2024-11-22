@@ -81,6 +81,36 @@ class ItemsRepository
         }
     }
 
+    public function all(array $data)
+    {
+        try{
+            $list = [];
+            $query = $this->itemsModel::query();
+
+            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
+                $query->orderBy('created_at', 'desc');
+            }
+    
+            if(!empty($data['paginator'])){
+                $pages = $query->paginate($data['paginator']);
+            } else {
+                throw new Exception("Paginator not found");
+            }
+
+            foreach($pages as $item){
+                $item = $this->modelToEntity($item);
+                $list[] = $item->toArray(true);
+            }
+
+            $list['total'] = $pages->total();
+
+            return $list;
+
+        } catch (Exception $e){
+            throw new Exception("Error in list all items - " . $e->getMessage(), 400);
+        }
+    }
+
     public function removeQtd(string $uuid, int $qtd)
     {
         try{

@@ -55,6 +55,7 @@ Route::group(['prefix' => 'items', 'middleware' => 'jwt'], function(){
     Route::post('/create', [ItemsControllers::class, 'create']);
     Route::put('/updated/{uuid}', [ItemsControllers::class, 'updated']);
     Route::delete('/deleted/{uuid}', [ItemsControllers::class, 'deleted']);
+    Route::get('/all', [ItemsControllers::class, 'all']);
     Route::get('/all/{merchantUuid}', [ItemsControllers::class, 'allByMerchant']);
     Route::get('/get/{uuid}', [ItemsControllers::class, 'get']);
 });

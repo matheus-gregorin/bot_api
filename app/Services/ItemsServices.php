@@ -112,4 +112,10 @@ class ItemsServices
         throw new Exception("Merchant not found");
 
     }
+
+    public function all(array $data)
+    {
+        return $this->itemsRepository->all( $data);
+
+    }
 }
