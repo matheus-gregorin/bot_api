@@ -108,7 +108,9 @@ class ClientsRepository
             }
     
             if(!empty($data['paginator'])){
-                $pages = $query->paginate($data['paginator']);
+                $pontoDePartida = $data['paginator'] - 10;
+                $pontoFinal = $pontoDePartida + 10;
+                $pages = $query->skip($pontoDePartida)->take($pontoFinal)->get();
             } else {
                 throw new Exception("Paginator not found");
             }
@@ -119,7 +121,7 @@ class ClientsRepository
                 $list[] = $client->toArray(true);
             }
 
-            $list['total'] = $pages->total();
+            $list['total'] = count($list);
 
             return $list;
 
