@@ -121,7 +121,7 @@ class ClientsRepository
                 $list[] = $client->toArray(true);
             }
 
-            $list['total'] = count($list);
+            $list['total'] = $this->clientsModel::count();
 
             return $list;
 
