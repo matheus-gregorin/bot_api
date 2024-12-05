@@ -112,7 +112,7 @@ class ClientsRepository
                 $pontoFinal = $pontoDePartida + 10;
                 $pages = $query->skip($pontoDePartida)->take($pontoFinal)->get();
             } else {
-                throw new Exception("Paginator not found");
+                $pages = $query->get();
             }
 
             foreach($pages as $client){
