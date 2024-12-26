@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\OperatorsServices;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OperatorsControllers extends Controller
 {
@@ -156,6 +157,26 @@ class OperatorsControllers extends Controller
             ]);
 
         } catch (Exception $e){
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ], $e->getCode());
+        }
+    }
+
+    public function valid(Request $request)
+    {
+        try {
+
+            $token = $request->header('Authorization');
+            Log::info("TOKEN", [$token]);
+            $this->operatorsServices->validToken($token);
+
+            return response()->json([
+                'success' => true
+            ]);
+
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false, 
                 'message' => $e->getMessage()

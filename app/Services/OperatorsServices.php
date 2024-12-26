@@ -87,8 +87,6 @@ class OperatorsServices
 
             Log::info('Login Success', []);
 
-            $operator->setPassword('');
-
             return ['token' => $token, 'uuid' => $operator->getUuid()];
 
         }
@@ -175,6 +173,16 @@ class OperatorsServices
         }
 
         throw new Exception("Operator not found", 404);
+    }
+
+    public function validToken(string $token)
+    {
+        $valid = $this->blackListTokensRepository->getByToken($token);
+        if(empty($valid) || !$valid->active) {
+            throw new Exception("User not is authenticate", 401);
+        }
+
+        return true;
     }
 
 }

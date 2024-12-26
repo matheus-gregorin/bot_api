@@ -24,6 +24,7 @@ use Twilio\Rest\Client;
 Route::group(['prefix' => 'auth', 'middleware' => 'jwt'], function(){
     Route::post('/login', [OperatorsControllers::class, 'login'])->withoutMiddleware('jwt');
     Route::post('/logout', [OperatorsControllers::class, 'logout']);
+    Route::post('/valid', [OperatorsControllers::class, 'valid'])->withoutMiddleware('jwt');
 });
 
 Route::group(['prefix' => 'merchants', 'middleware' => 'jwt'], function(){
