@@ -93,7 +93,8 @@ class ListOfPurchaseControllers extends Controller
         try{
 
             $lists = $this->listOfPurchaseServices->getAll($request->all());
-            $total = count($lists);
+            $total = $lists['total'] ?? 0;
+            unset($lists['total']);;
 
             return response()->json([
                 'success' => true,

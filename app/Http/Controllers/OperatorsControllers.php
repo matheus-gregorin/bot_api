@@ -169,7 +169,6 @@ class OperatorsControllers extends Controller
         try {
 
             $token = $request->header('Authorization');
-            Log::info("TOKEN", [$token]);
             $this->operatorsServices->validToken($token);
 
             return response()->json([

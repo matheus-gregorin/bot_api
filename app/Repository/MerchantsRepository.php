@@ -101,20 +101,25 @@ class MerchantsRepository
                     $query->where('are_open', true);
                 }
             }
+
+            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
+                $query->orderBy('created_at', 'desc');
+            }
     
             if(!empty($data['paginator'])){
-                $pages = $query->paginate($data['paginator']);
+                $pontoDePartida = $data['paginator'] - 10;
+                $pontoFinal = $pontoDePartida + 10;
+                $pages = $query->skip($pontoDePartida)->take($pontoFinal)->get();
             } else {
-                throw new Exception("Paginator not found", 400);
+                $pages = $query->get();
             }
 
             foreach($pages as $merchant){
-
                 $merchant = $this->modelToEntity($merchant);
                 $list[] = $merchant->toArray(true);
             }
 
-            $list['total'] = $pages->total();
+            $list['total'] = $this->merchantsModel::count();
 
             return $list;
 

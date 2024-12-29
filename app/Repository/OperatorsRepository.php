@@ -133,21 +133,26 @@ class OperatorsRepository
             if(!empty($data['status'])){
                 $query->where('status', 'LIKE', '%'.$data['status'].'%');
             }
+
+            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
+                $query->orderBy('created_at', 'desc');
+            }
     
             if(!empty($data['paginator'])){
-                $pages = $query->paginate($data['paginator']);
+                $pontoDePartida = $data['paginator'] - 10;
+                $pontoFinal = $pontoDePartida + 10;
+                $pages = $query->skip($pontoDePartida)->take($pontoFinal)->get();
             } else {
-                throw new Exception("Not content paginator", 400);
+                $pages = $query->get();
             }
 
             foreach($pages as $user){
-
                 $user->password = "";
                 $operator = $this->modelToEntity($user);
                 $list[] = $operator->toArray(true);
             }
 
-            $list['total'] = $pages->total();
+            $list['total'] = $this->operatorModel::count();
 
             return $list;
 

@@ -48,17 +48,25 @@ class ListOfPurchaseRepository
 
             $list = [];
             $query = $this->listOfPurchaseModel::query();
+
+            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
+                $query->orderBy('created_at', 'desc');
+            }
+
             if(!empty($data['paginator'])){
-                $pages = $query->paginate($data['paginator']);
+                $pontoDePartida = $data['paginator'] - 10;
+                $pontoFinal = $pontoDePartida + 10;
+                $pages = $query->skip($pontoDePartida)->take($pontoFinal)->get();
             } else {
-                throw new Exception("Paginator not found", 400);
+                $pages = $query->get();
             }
 
             foreach ($pages as $listOfPurchase){
-
                 $listEntity = $this->modelToEntity($listOfPurchase);
                 $list[] = $listEntity->toArray(true);
             }
+
+            $list['total'] = $this->listOfPurchaseModel::count();
 
             return $list;
 

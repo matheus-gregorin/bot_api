@@ -116,6 +116,5 @@ class ItemsServices
     public function all(array $data)
     {
         return $this->itemsRepository->all( $data);
-
     }
 }

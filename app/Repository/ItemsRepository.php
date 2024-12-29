@@ -92,9 +92,11 @@ class ItemsRepository
             }
     
             if(!empty($data['paginator'])){
-                $pages = $query->paginate($data['paginator']);
+                $pontoDePartida = $data['paginator'] - 10;
+                $pontoFinal = $pontoDePartida + 10;
+                $pages = $query->skip($pontoDePartida)->take($pontoFinal)->get();
             } else {
-                throw new Exception("Paginator not found");
+                $pages = $query->get();
             }
 
             foreach($pages as $item){
@@ -102,7 +104,7 @@ class ItemsRepository
                 $list[] = $item->toArray(true);
             }
 
-            $list['total'] = $pages->total();
+            $list['total'] = $this->itemsModel::count();
 
             return $list;
 

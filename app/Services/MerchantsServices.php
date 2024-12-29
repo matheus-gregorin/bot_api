@@ -127,7 +127,6 @@ class MerchantsServices
     {
         checkingWhetherTheRequestWasMadeByAManager($data);
 
-        Log::info("Merchants", ['data' => $data]);
         return $this->merchantsRepository->listAll($data);
     }
 

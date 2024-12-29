@@ -116,7 +116,6 @@ class ClientsRepository
             }
 
             foreach($pages as $client){
-
                 $client = $this->modelToEntity($client);
                 $list[] = $client->toArray(true);
             }
