@@ -51,9 +51,18 @@ class BlackListTokensRepository
         }
     }
 
-    public function delete(string $token)
+    public function delete(string $operatorUuid)
     {
-        // todo
+        try {
+
+            $tokenData = $this->blacklistTokens->where('operator_uuid', $operatorUuid)->first();
+            if(!empty($tokenData)){
+                $tokenData->delete();
+            }
+
+        } catch (Exception $e) {
+            throw new Exception("Error in get token disable - " . $e->getMessage(), 500);
+        }
     }
 
 }

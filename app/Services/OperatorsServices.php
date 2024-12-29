@@ -83,7 +83,7 @@ class OperatorsServices
 
             $this->loginLogoutRepository->login(['operator_uuid' => $operator->getUuid(), 'log' => "Entrada : " . Carbon::now()->toString()]);
             $this->operatorsRepository->changeToOnline($operator->getUuid());
-            $this->blackListTokensRepository->create(['token_jwt' => "Bearer " . $token, 'active' => true]);
+            $this->blackListTokensRepository->create(['operator_uuid' => $operator->getUuid(), 'token_jwt' => "Bearer " . $token, 'active' => true]);
 
             Log::info('Login Success', []);
 
@@ -94,14 +94,14 @@ class OperatorsServices
         throw new Exception("Credentials invalid", 401);
     }
 
-    public function logout(string $token, array $data)
+    public function logout(string $operatorUuid, string $token, array $data)
     {
-        $operator = $this->operatorsRepository->getByEmail($data['email_guest']);
+        $operator = $this->operatorsRepository->getByUuid($operatorUuid);
         if($operator){
             if($operator->getStatus() == Status::$OPERATOR_STATUS_ON){
+                $this->blackListTokensRepository->delete($operatorUuid);
                 $this->loginLogoutRepository->logout(['operator_uuid' => $operator->getUuid(), 'log' => "Saída : " . Carbon::now()->toString()]);
                 $this->operatorsRepository->changeToOffline($operator->getUuid());
-                $this->blackListTokensRepository->setDisable($token);
                 return;
             }
             throw new Exception("Operator is already offline", 401);

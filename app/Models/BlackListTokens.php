@@ -20,6 +20,7 @@ class BlackListTokens extends Model
     protected $table = 'blacklist_tokens';
 
     protected $fillable = [
+        'operator_uuid',
         'token_jwt',
         'active',
         'updated_at',

@@ -56,16 +56,15 @@ class OperatorsControllers extends Controller
         }
     }
 
-    public function logout(Request $request)
+    public function logout(string $operatorUuid, Request $request)
     {
         try{
 
-            $token = 
-            !empty($request->header('authorization')) ? 
-                $request->header('authorization') : 
-                    throw new Exception("Token not exists", 404);
+            $token = !empty($request->header('authorization')) ? 
+            $request->header('authorization') : 
+            throw new Exception("Token not exists", 404);
 
-            $this->operatorsServices->logout($token, $request->all());
+            $this->operatorsServices->logout($operatorUuid, $token, $request->all());
 
             return response()->json([
                 'success' => true
