@@ -67,6 +67,7 @@ Route::group(['prefix' => 'list', 'middleware' => 'jwt'], function(){
     Route::put('/update/{uuid}', [ListOfPurchaseControllers::class, 'update']);
     Route::delete('/delete/{uuid}', [ListOfPurchaseControllers::class, 'delete']);
     Route::get('/all', [ListOfPurchaseControllers::class, 'getAll']);
+    Route::get('graph/all', [ListOfPurchaseControllers::class, 'graph']);
     Route::get('/get/{uuid}', [ListOfPurchaseControllers::class, 'get']);
 });
 

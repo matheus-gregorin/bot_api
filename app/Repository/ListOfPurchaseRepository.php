@@ -163,4 +163,31 @@ class ListOfPurchaseRepository
             $listOfPurchase->created_at,
         );
     }
+
+    public function getAllForGraph(array $data)
+    {
+        try{
+
+            $list = [];
+            $query = $this->listOfPurchaseModel::query();
+
+            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
+                $query->orderBy('created_at', 'desc');
+            }
+
+            $pages = $query->get();
+
+            foreach ($pages as $listOfPurchase){
+                $listEntity = $this->modelToEntity($listOfPurchase);
+                $list[] = $listEntity->toArray(true);
+            }
+
+            $list['total'] = $this->listOfPurchaseModel::count();
+
+            return $list;
+
+        } catch (Exception $e){
+            throw new Exception("Error in get all items - " . $e->getMessage(), 400);
+        }
+    }
 }

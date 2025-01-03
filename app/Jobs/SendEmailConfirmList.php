@@ -46,7 +46,7 @@ class SendEmailConfirmList implements ShouldQueue
         try {
 
             Log::info("", [$this->listOfPurchase->toArray(true), $this->client->toArray(true), $this->data]);
-        Mail::to($this->client->getEmail())->send(new SendEmailConfirmListMail(
+            Mail::to($this->client->getEmail())->send(new SendEmailConfirmListMail(
                 $this->listOfPurchase->toArray(true), 
                     $this->client->toArray(true), 
                         $this->data));

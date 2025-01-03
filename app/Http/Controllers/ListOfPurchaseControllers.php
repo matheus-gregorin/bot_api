@@ -128,4 +128,23 @@ class ListOfPurchaseControllers extends Controller
             ]);
         }
     }
+
+    public function graph(Request $request)
+    {
+        try{
+
+            $graph = $this->listOfPurchaseServices->graph($request->all());
+
+            return response()->json([
+                'success' => true,
+                'graph' => $graph
+            ]);
+
+        } catch (Exception $e){
+            return response()->json([
+                'success' => false, 
+                'message' => $e->getMessage()
+            ]);
+        }
+    }
 }

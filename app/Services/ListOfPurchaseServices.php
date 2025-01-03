@@ -273,4 +273,31 @@ class ListOfPurchaseServices
             return false;
         }  
     }
+
+    public function graph(array $data)
+    {
+        $months = [0,0,0,0,0,0,0,0,0,0,0,0];
+        $values = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+        $lists = $this->listOfPurchaseRepository->getAllForGraph($data);
+
+        foreach($lists as $list){
+
+            $containCreated = !empty($list['created_at']) ? true : false;
+            if($containCreated){
+                $month = Carbon::parse(!empty($list['created_at']) ? $list['created_at'] : now())->month;
+                $months[$month - 1] += 1;
+            }
+
+            $containValue = !empty($list['value']) ? true : false;
+            if($containValue){
+                $values[$month - 1] += $list['value'];;
+            }
+        }
+
+        return [
+            'list_per_months' => $months,
+            'values_per_month' => $values
+        ];
+    }
 }
