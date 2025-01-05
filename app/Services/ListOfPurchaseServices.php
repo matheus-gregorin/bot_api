@@ -282,16 +282,16 @@ class ListOfPurchaseServices
         $lists = $this->listOfPurchaseRepository->getAllForGraph($data);
 
         foreach($lists as $list){
+            if(!empty($list['created_at'])){
 
-            $containCreated = !empty($list['created_at']) ? true : false;
-            if($containCreated){
-                $month = Carbon::parse(!empty($list['created_at']) ? $list['created_at'] : now())->month;
+                $month = Carbon::parse($list['created_at'])->month;
                 $months[$month - 1] += 1;
-            }
+    
+                $containValue = !empty($list['value']) ? true : false;
+                if($containValue){
+                    $values[$month - 1] += $list['value'];
+                }
 
-            $containValue = !empty($list['value']) ? true : false;
-            if($containValue){
-                $values[$month - 1] += $list['value'];;
             }
         }
 

@@ -169,13 +169,7 @@ class ListOfPurchaseRepository
         try{
 
             $list = [];
-            $query = $this->listOfPurchaseModel::query();
-
-            if(!empty($data['order_by']) && $data['order_by'] == 'desc'){
-                $query->orderBy('created_at', 'desc');
-            }
-
-            $pages = $query->get();
+            $pages = $this->listOfPurchaseModel::all();
 
             foreach ($pages as $listOfPurchase){
                 $listEntity = $this->modelToEntity($listOfPurchase);
