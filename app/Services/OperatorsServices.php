@@ -85,7 +85,7 @@ class OperatorsServices
             $this->operatorsRepository->changeToOnline($operator->getUuid());
             $this->blackListTokensRepository->create(['operator_uuid' => $operator->getUuid(), 'token_jwt' => "Bearer " . $token, 'active' => true]);
 
-            Log::info('Login Success', []);
+            Log::info('Login Success', ['user' => $operator->getName()]);
 
             return ['token' => $token, 'uuid' => $operator->getUuid()];
 

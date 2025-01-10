@@ -284,6 +284,8 @@ class ListOfPurchaseServices
         foreach($lists as $list){
             if(!empty($list['created_at'])){
 
+                //TODO BSUCAR SOMENTES AS LISTAS DO ANO ATUAL: 
+
                 $month = Carbon::parse($list['created_at'])->month;
                 $months[$month - 1] += 1;
     
