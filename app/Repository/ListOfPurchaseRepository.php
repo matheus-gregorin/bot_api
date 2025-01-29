@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entitys\ClientEntity;
 use App\Entitys\ListOfPurchaseEntity;
 use App\Models\ListOfPurchase;
 use Exception;
@@ -150,9 +151,25 @@ class ListOfPurchaseRepository
 
     public function modelToEntity(ListOfPurchase $listOfPurchase)
     {
+        if(!empty($listOfPurchase->client)){
+            $client = new ClientEntity(
+                $listOfPurchase->client['uuid'],
+                $listOfPurchase->client['name'],
+                $listOfPurchase->client['date_of_birth'],
+                $listOfPurchase->client['number'],
+                $listOfPurchase->client['email'],
+                $listOfPurchase->client['address'],
+                $listOfPurchase->client['activate'],
+                $listOfPurchase->client['updated_at'],
+                $listOfPurchase->client['created_at'],
+            );
+        } else {
+            throw new Exception("Error in client of list", 400);
+        }
+
         return new ListOfPurchaseEntity(
             $listOfPurchase->uuid,
-            $listOfPurchase->client_uuid,
+            $client,
             $listOfPurchase->items,
             $listOfPurchase->form_purchase,
             $listOfPurchase->address_send,

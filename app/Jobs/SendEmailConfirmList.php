@@ -45,11 +45,18 @@ class SendEmailConfirmList implements ShouldQueue
     {
         try {
 
-            Log::info("", [$this->listOfPurchase->toArray(true), $this->client->toArray(true), $this->data]);
+            Log::info("Purchase:", [
+                    $this->client->getName(),
+                    json_encode($this->listOfPurchase->toArray(true)),  
+                    json_encode($this->data)
+                ]
+            );
             Mail::to($this->client->getEmail())->send(new SendEmailConfirmListMail(
-                $this->listOfPurchase->toArray(true), 
+            $this->listOfPurchase->toArray(true), 
                     $this->client->toArray(true), 
-                        $this->data));
+                    $this->data
+                )
+            );
             Log::info("Send email confirm list", []);
 
         } catch (\Exception $e) {

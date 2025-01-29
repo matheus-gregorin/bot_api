@@ -20,7 +20,7 @@ class ListOfPurchase extends Model
 
     protected $fillable = [
         'uuid',
-        'client_uuid',
+        'client',
         'items',
         'date_schedule',
         'form_purchase',

@@ -6,6 +6,8 @@ USER root
 
 # Instale dependências do sistema necessárias
 RUN apt-get update && apt-get install -y \
+    systemctl \
+    lsof \
     libssl-dev \
     pkg-config \
     unzip \

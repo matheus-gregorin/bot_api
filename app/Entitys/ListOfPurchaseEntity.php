@@ -6,7 +6,7 @@ class ListOfPurchaseEntity
 {
     private string $uuid;
 
-    private string $clientUuid;
+    private ClientEntity $client;
 
     private array $items;
 
@@ -26,7 +26,7 @@ class ListOfPurchaseEntity
 
     public function __construct(
         string $uuid,
-        string $clientUuid,
+        ClientEntity $client,
         array $items,
         string $formPurchase,
         array $addressSend,
@@ -38,7 +38,7 @@ class ListOfPurchaseEntity
     ) 
     {
         $this->uuid = $uuid;
-        $this->clientUuid = $clientUuid;
+        $this->client = $client;
         $this->items = $items;
         $this->formPurchase = $formPurchase;
         $this->addressSend = $addressSend;
@@ -60,9 +60,9 @@ class ListOfPurchaseEntity
     /**
      * Get the value of clientUuid
      */ 
-    public function getClientUuid()
+    public function getClient()
     {
-        return $this->clientUuid;
+        return $this->client;
     }
 
     /**
@@ -70,9 +70,9 @@ class ListOfPurchaseEntity
      *
      * @return  self
      */ 
-    public function setClientUuid($clientUuid)
+    public function setClient($client)
     {
-        $this->clientUuid = $clientUuid;
+        $this->client = $client;
 
         return $this;
     }
@@ -217,7 +217,7 @@ class ListOfPurchaseEntity
     {
         $data = [
             'uuid' => $this->getUuid(),
-            'client_uuid'=> $this->getClientUuid(),
+            'client'=> $this->getClient()->toArray(true),
             'items' => $this->getItems(),
             'form_purchase' => $this->getFormPurchase(),
             'address_send'=> $this->getAddressSend(),

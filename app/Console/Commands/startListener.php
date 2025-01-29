@@ -28,7 +28,7 @@ class startListener extends Command
      *
      * @return int
      */
-    public function handle()
+    public function handle(): void
     {
         try{
 

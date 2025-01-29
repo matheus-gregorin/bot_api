@@ -35,3 +35,5 @@ se não estiver ele vai criar com as configurações corretas.
 2° - Inicia e atualiza o Supervisord a partir da linha 40
 
 3° Foi criado um Publisher e um Listener para uma fila do RabbitMQ
+
+4° Os logs do RabbitMq vai estra rodanod no supervisor, na porta 9001. Só é necessário clicar em cima do seu name que vai redirecionar para a tela de logs
