@@ -42,9 +42,11 @@ class ListOfPurchaseServices
     {
         $this->validation($data['client_uuid'], $data['items']);
 
+        $client = $this->clientRepository->getByUuid($data['client_uuid']);
+
         $listOfPurchase = new ListOfPurchaseEntity(
             Uuid::uuid4()->toString(),
-            $data['client_uuid'],
+            $client,
             $data['items'],
             $data['form_purchase'],
             $data['address_send'],
@@ -61,13 +63,15 @@ class ListOfPurchaseServices
         $list = $this->listOfPurchaseRepository->create($listOfPurchase->toArray(false));
 
         try{
-            // Dispatch menssenger
-            (new OrderReceivedEvent("Create list " . $listOfPurchase->getUuid()))->publish();
-            $email = $this->sendEmailOfConfirmPurchase($listOfPurchase, $listOfPurchase->getClientUuid());
-            Log::info("Send email and message", []);
+
+            // Dispatch menssenger on Rabbit
+            (new OrderReceivedEvent("Create new list: [User: " . $listOfPurchase->getClient()->getName() . ", List: " . $listOfPurchase->getUuid()))->publish();
+
+            // Dispatch email for new purchase
+            $this->sendEmailOfConfirmPurchase($listOfPurchase, $listOfPurchase->getClient()->getUuid());
     
         } catch (Exception $e){
-            Log::info("Error to send email of List", ['message' => $e->getMessage()]);
+            Log::critical("Error to send email of List", ['message' => $e->getMessage()]);
         }
 
         if($list){
@@ -250,7 +254,7 @@ class ListOfPurchaseServices
     {
         try {
 
-            $client = $this->clientRepository->getByUuid($uuidClient);
+            $client = $listOfPurchase->getClient();
             if(!empty($client)){
 
                 $data = [];
@@ -263,6 +267,11 @@ class ListOfPurchaseServices
                     ];
                 }
 
+                Log::info("Client + Items: Email", [
+                    'uuid_list' => $listOfPurchase->getUuid(),
+                    'client_name' => $client->getName(),
+                    'informations' => json_encode($data),
+                ]);
                 //Job
                 SendEmailConfirmList::dispatch($listOfPurchase, $client, $data);
             }
