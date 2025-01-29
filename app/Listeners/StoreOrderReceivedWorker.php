@@ -25,7 +25,7 @@ class StoreOrderReceivedWorker
     public function work($msg)
     {
       try {
-        Log::info('Listener send new email', ['message' => $msg->body]);
+        Log::channel('stderr')->info('Listener send new email', ['message' => $msg->body]);
         return $this->ack($msg);
 
       } catch (\Exception $e) {

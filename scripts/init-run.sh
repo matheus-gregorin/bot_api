@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# Buscando status do supervisor
 systemctl status supervisor
+# Habilitando ele
 systemctl enable supervisor
 
+# Verificando se na porta 9001 não tem nada rodando, se sim, matamos o serviço
 for PORT in 9001; do
   PID=$(lsof -ti :$PORT)
   if [ -n "$PID" ]; then
@@ -13,9 +16,11 @@ for PORT in 9001; do
   fi
 done
 
+# Iniciamos uma releitura e update do arquivo
 supervisorctl reread
 supervisorctl update
 
+# reiniciamos o serviço do supervisor
 systemctl restart supervisor
 
 # Iniciar o supervisord em segundo plano
